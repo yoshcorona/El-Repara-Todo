@@ -231,6 +231,7 @@
     }
 
     .section-label {
+      display: block;
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.15em;
@@ -240,13 +241,21 @@
     }
 
     .section-title {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+    }
+
+    #ademas .section-title,
+    #impacto .section-title,
+    #herramientas .section-title,
+    #roadmap .section-title {
+      margin-bottom: 64px;
     }
 
     .section-desc {
       color: var(--text-secondary);
       font-size: clamp(1rem, 1.5vw, 1.125rem);
       max-width: 700px;
+      margin-bottom: 64px;
     }
 
     /* Navigation */
@@ -826,7 +835,6 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 24px;
-      margin-top: 24px;
     }
 
     @media (max-width: 1100px) {
@@ -874,7 +882,6 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
-      margin-top: 24px;
     }
 
     .solution-step {
@@ -907,18 +914,23 @@
 
     /* Features Section */
     #features {
-      padding: 50px 0;
       background: rgba(8, 8, 12, 0.88);
     }
 
     .feature-block {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 48px;
+      gap: 80px;
       align-items: center;
-      padding: 60px 0;
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
       opacity: 1 !important;
       visibility: visible !important;
+    }
+
+    .feature-block:first-child {
+      border-top: none;
+      padding-top: 0;
     }
 
     .feature-content,
@@ -991,7 +1003,45 @@
     .feature-visual {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+    }
+
+    .feature-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 100px;
+      padding: 10px 20px;
+      margin-top: 28px;
+      width: fit-content;
+    }
+
+    .feature-stat.mint {
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+    }
+
+    .feature-stat.blue {
+      background: rgba(96, 165, 250, 0.08);
+      border: 1px solid rgba(96, 165, 250, 0.25);
+    }
+
+    .feature-stat.amber {
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+    }
+
+    .feature-stat-value {
+      font-size: 1.375rem;
+      font-weight: 800;
+    }
+
+    .feature-stat-value.mint { color: var(--mint); }
+    .feature-stat-value.blue { color: var(--blue); }
+    .feature-stat-value.amber { color: var(--amber); }
+
+    .feature-stat-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
     }
 
     /* Donut Chart */
@@ -1201,7 +1251,6 @@
     }
 
     .flows-visual {
-      margin-top: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1245,7 +1294,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      margin-top: 24px;
     }
 
     @media (max-width: 900px) {
@@ -1289,13 +1337,7 @@
     }
 
     .impact-table {
-      margin-top: 24px;
       overflow-x: auto;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .impact-table tbody tr {
       opacity: 1 !important;
       visibility: visible !important;
     }
@@ -1404,7 +1446,6 @@
       justify-content: center;
       align-items: center;
       gap: 16px;
-      margin-top: 24px;
     }
 
     .tool-item {
@@ -1458,7 +1499,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      margin-top: 24px;
     }
 
     @media (max-width: 900px) {
@@ -1746,22 +1786,14 @@
           <div class="feature-content">
             <span class="badge mint">Medición inteligente</span>
             <h3>¿Cuánto se usa realmente el sistema?</h3>
-            <p>Revisa cada propiedad visual — colores, bordes, textos, márgenes, esquinas, sombras — y calcula qué
-              porcentaje está conectado al sistema y cuánto fue puesto a mano.</p>
-            <p class="subtext">Tú decides contra qué sistema auditar. Elige las librerías activas y ten control total de
-              las sugerencias.</p>
+            <p>Revisa cada propiedad visual — colores, bordes, textos, márgenes, esquinas, sombras — y calcula qué porcentaje está conectado al sistema y cuánto fue puesto a mano.</p>
+            <p class="subtext">Tú decides contra qué sistema auditar. Elige las librerías activas y ten control total de las sugerencias.</p>
+            <div class="feature-stat mint">
+              <span class="feature-stat-value mint">85%</span>
+              <span class="feature-stat-label">Adopción del sistema</span>
+            </div>
           </div>
           <div class="feature-visual">
-            <div class="donut-container">
-              <div class="donut-chart">
-                <svg width="180" height="180" viewBox="0 0 180 180" aria-hidden="true">
-                  <circle class="bg" cx="90" cy="90" r="65"></circle>
-                  <circle class="progress mint" cx="90" cy="90" r="65" data-value="85"></circle>
-                </svg>
-                <span class="donut-value mint">85%</span>
-              </div>
-              <span class="donut-label">Adopción del sistema</span>
-            </div>
             <img src="/feature-medicion.png" alt="Medición inteligente del sistema de diseño" class="feature-img" />
           </div>
         </div>
@@ -1771,22 +1803,14 @@
           <div class="feature-content">
             <span class="badge blue">Estructura</span>
             <h3>¿Está bien armada la pantalla?</h3>
-            <p>No basta con usar los colores correctos. Si la estructura está desordenada, desarrollo no puede
-              implementar fielmente el diseño.</p>
-            <p class="subtext">Evalúa la organización y da una calificación de salud del layout. Identifica qué capas
-              reestructurar.</p>
+            <p>No basta con usar los colores correctos. Si la estructura está desordenada, desarrollo no puede implementar fielmente el diseño.</p>
+            <p class="subtext">Evalúa la organización y da una calificación de salud del layout. Identifica qué capas reestructurar.</p>
+            <div class="feature-stat blue">
+              <span class="feature-stat-value blue">72%</span>
+              <span class="feature-stat-label">Salud del layout</span>
+            </div>
           </div>
           <div class="feature-visual">
-            <div class="donut-container">
-              <div class="donut-chart">
-                <svg width="180" height="180" viewBox="0 0 180 180" aria-hidden="true">
-                  <circle class="bg" cx="90" cy="90" r="65"></circle>
-                  <circle class="progress blue" cx="90" cy="90" r="65" data-value="72"></circle>
-                </svg>
-                <span class="donut-value blue" style="color: var(--blue);">72%</span>
-              </div>
-              <span class="donut-label">Salud del layout</span>
-            </div>
             <img src="/feature-estructura.png" alt="Estructura y salud del layout" class="feature-img" />
           </div>
         </div>
@@ -1796,17 +1820,14 @@
           <div class="feature-content">
             <span class="badge amber">Reparación inteligente</span>
             <h3>Sugiere la mejor opción y la aplica</h3>
-            <p>Para cada elemento desconectado, el plugin busca inteligentemente la opción más cercana dentro del
-              sistema de diseño que tú seleccionaste. No solo coincidencias exactas: detecta similitudes en colores,
-              espaciados y sombras.</p>
+            <p>Para cada elemento desconectado, el plugin busca inteligentemente la opción más cercana dentro del sistema de diseño que tú seleccionaste. No solo coincidencias exactas: detecta similitudes en colores, espaciados y sombras.</p>
             <p class="subtext">Aplica la corrección con un clic — uno a uno, o todos a la vez.</p>
+            <div class="feature-stat amber">
+              <span class="feature-stat-value amber">50 → 0</span>
+              <span class="feature-stat-label">errores en un clic</span>
+            </div>
           </div>
           <div class="feature-visual">
-            <div class="repair-visual glass-card" style="padding: 48px;">
-              <div class="icon" aria-hidden="true">⚡</div>
-              <div class="repair-stat">50 errores → 0</div>
-              <div class="repair-sub">En un solo clic</div>
-            </div>
             <img src="/feature-reparacion.png" alt="Reparación inteligente del sistema de diseño" class="feature-img" />
           </div>
         </div>
@@ -1816,29 +1837,11 @@
           <div class="feature-content">
             <span class="badge violet">Inteligencia Artificial</span>
             <h3>Nombrar las capas ya no es tu problema</h3>
-            <p>Las capas se llaman "Frame 247", "Group 88", "Rectangle 12". Nadie las renombra. Cuando desarrollo las
-              ve, no entiende nada.</p>
-            <p>El plugin analiza el diseño y renombra cada capa automáticamente con nombres que describen lo que
-              realmente son.</p>
-            <p class="subtext">Dos modos: algoritmo local sin internet, o IA con Google Gemini para nombres aún más
-              precisos.</p>
+            <p>Las capas se llaman "Frame 247", "Group 88", "Rectangle 12". Nadie las renombra. Cuando desarrollo las ve, no entiende nada.</p>
+            <p>El plugin analiza el diseño y renombra cada capa automáticamente con nombres que describen lo que realmente son.</p>
+            <p class="subtext">Dos modos: algoritmo local sin internet, o IA con Google Gemini para nombres aún más precisos.</p>
           </div>
           <div class="feature-visual">
-            <div class="bem-visual">
-              <div class="bem-box before">
-                <h5>Antes</h5>
-                <div class="bem-item">📁 Frame 1047</div>
-                <div class="bem-item">📁 Group 88</div>
-                <div class="bem-item">📁 Rectangle 12</div>
-              </div>
-              <div class="bem-arrow">↓ un clic ↓</div>
-              <div class="bem-box after">
-                <h5>Después</h5>
-                <div class="bem-item">✅ hero__heading</div>
-                <div class="bem-item">✅ card__thumbnail</div>
-                <div class="bem-item">✅ cta__button</div>
-              </div>
-            </div>
             <img src="/feature-bem.png" alt="Renombrado automático de capas con BEM" class="feature-img" />
           </div>
         </div>
