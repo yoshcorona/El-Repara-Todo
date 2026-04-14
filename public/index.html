@@ -23,6 +23,7 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
+      cursor: none !important;
     }
 
     :root {
@@ -1601,6 +1602,145 @@
       outline-offset: 2px;
     }
 
+    /* ===== LOADER ===== */
+    #loader {
+      position: fixed; inset: 0; z-index: 999999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .loader-content { text-align: center; position: relative; z-index: 3; }
+    .loader-chip {
+      font-size: 0.7rem; letter-spacing: 0.25em; color: var(--mint);
+      text-transform: uppercase; margin-bottom: 20px; opacity: 0; transform: translateY(10px);
+    }
+    .loader-title {
+      font-size: clamp(2.8rem, 8vw, 6.5rem); font-weight: 800; letter-spacing: 0.06em;
+      background: linear-gradient(135deg, var(--mint) 0%, var(--blue) 50%, var(--violet) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      opacity: 0; transform: translateY(20px);
+    }
+    .loader-bar-wrap {
+      width: 220px; height: 1px; background: rgba(255,255,255,0.08);
+      margin: 28px auto 10px; overflow: hidden; border-radius: 2px;
+    }
+    .loader-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--mint), var(--blue)); box-shadow: 0 0 10px var(--mint); }
+    .loader-pct { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'SF Mono', monospace; }
+
+    /* ===== TRAIL CANVAS ===== */
+    #trail-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 99995;
+    }
+
+    /* ===== AMBIENT GLOW ===== */
+    #ambient-glow {
+      position: fixed; width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(52,211,153,0.055) 0%, rgba(96,165,250,0.025) 45%, transparent 70%);
+      pointer-events: none; z-index: 2;
+      left: 50%; top: 50%; transform: translate(-50%,-50%);
+      filter: blur(35px); will-change: left, top;
+    }
+
+
+    /* ===== KINETIC TYPOGRAPHY ===== */
+    .kinetic-section {
+      overflow: hidden; padding: 72px 0;
+      background: rgba(8,8,12,0.9);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      position: relative; z-index: 10;
+    }
+    .kinetic-row {
+      display: flex; white-space: nowrap; overflow: hidden;
+      font-size: clamp(3.5rem, 9vw, 7.5rem); font-weight: 800;
+      letter-spacing: -0.01em; line-height: 1.05;
+      -webkit-text-stroke: 1.5px rgba(255,255,255,0.07);
+      color: transparent; padding: 4px 0;
+      will-change: transform;
+    }
+    .kinetic-row:nth-child(2) { -webkit-text-stroke-color: rgba(52,211,153,0.25); }
+    .kinetic-row:nth-child(3) { -webkit-text-stroke-color: rgba(96,165,250,0.2); }
+    .kinetic-row .k-dim { opacity: 0.35; }
+
+    /* ===== HERO WORD REVEAL ===== */
+    .hero-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
+    .hero-word-inner { display: inline-block; }
+
+    /* ===== CUSTOM CURSOR ===== */
+    #cursor-dot {
+      position: fixed; top: 0; left: 0;
+      width: 8px; height: 8px;
+      background: var(--mint);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.3s, transform 0.15s;
+      box-shadow: 0 0 10px var(--mint);
+    }
+    #cursor-ring {
+      position: fixed; top: 0; left: 0;
+      width: 38px; height: 38px;
+      border: 1.5px solid rgba(52, 211, 153, 0.55);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s, height 0.25s, border-color 0.25s, transform 0.1s;
+      box-shadow: 0 0 12px rgba(52,211,153,0.15);
+    }
+    #cursor-dot.hovered { width: 14px; height: 14px; background: var(--blue); box-shadow: 0 0 16px var(--blue); }
+    #cursor-ring.hovered { width: 56px; height: 56px; border-color: rgba(96,165,250,0.7); }
+
+    /* ===== SCROLL PROGRESS BAR ===== */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0;
+      height: 2px; width: 0%;
+      z-index: 99997;
+      background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet));
+      box-shadow: 0 0 8px rgba(52,211,153,0.7);
+      transition: width 0.05s linear;
+    }
+
+    /* ===== NOISE / GRAIN ===== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99996;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      background-repeat: repeat;
+    }
+
+    /* ===== CTA BUTTON ===== */
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--mint), var(--blue));
+      color: #08080c;
+      font-weight: 800;
+      font-size: 1.0625rem;
+      padding: 18px 48px;
+      border-radius: 100px;
+      text-decoration: none;
+      margin-top: 40px;
+      box-shadow: 0 0 40px rgba(52,211,153,0.35), 0 8px 32px rgba(0,0,0,0.3);
+      transition: box-shadow 0.3s, transform 0.3s;
+      position: relative;
+      will-change: transform;
+    }
+    .cta-btn:hover {
+      box-shadow: 0 0 70px rgba(52,211,153,0.55), 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    /* ===== TILT: remove CSS hover transform so JS can control it ===== */
+    .glass-card:hover {
+      transform: none;
+    }
+
     /* Screen reader only */
     .sr-only {
       position: absolute;
@@ -1617,6 +1757,26 @@
 </head>
 
 <body>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-chip">PLUGIN DE FIGMA</div>
+      <div class="loader-title">REPARA TODO</div>
+      <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
+      <div class="loader-pct">0%</div>
+    </div>
+  </div>
+
+  <!-- Custom Cursor -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+  <!-- Scroll Progress -->
+  <div id="scroll-progress"></div>
+  <!-- Trail Canvas -->
+  <canvas id="trail-canvas"></canvas>
+  <!-- Ambient Glow -->
+  <div id="ambient-glow"></div>
+
   <!-- Global 3D Animated Background -->
   <div class="global-bg-animation" aria-hidden="true">
     <div class="bg-orb bg-orb-1"></div>
@@ -2017,6 +2177,13 @@
       </div>
     </section>
 
+    <!-- Kinetic Typography -->
+    <div class="kinetic-section" aria-hidden="true">
+      <div class="kinetic-row"><span>ESCANEA&nbsp;&nbsp;</span><span class="k-dim">ESCANEA&nbsp;&nbsp;</span><span>ESCANEA&nbsp;&nbsp;</span><span class="k-dim">ESCANEA</span></div>
+      <div class="kinetic-row k-rev"><span>DETECTA&nbsp;&nbsp;</span><span class="k-dim">DETECTA&nbsp;&nbsp;</span><span>DETECTA&nbsp;&nbsp;</span><span class="k-dim">DETECTA</span></div>
+      <div class="kinetic-row"><span>REPARA&nbsp;&nbsp;</span><span class="k-dim">REPARA&nbsp;&nbsp;</span><span>REPARA&nbsp;&nbsp;</span><span class="k-dim">REPARA</span></div>
+    </div>
+
     <!-- Quote Section -->
     <section id="quote" aria-label="Cita">
       <div class="container">
@@ -2100,7 +2267,8 @@
         <h2>De <span class="gradient-text">40 horas</span> a <span class="gradient-text">5 minutos</span>. Cada sprint.
         </h2>
         <p class="subtitle">Listo para producción. Listo para escalar.</p>
-        <p class="credit">Desarrollado por Yosh Corona · Una iniciativa más de Bauinos</p>
+        <a href="#" class="cta-btn">Conseguir el plugin →</a>
+        <p class="credit" style="margin-top:32px;">Desarrollado por Yosh Corona · Una iniciativa más de Bauinos</p>
         <p class="gradient-text">Mirando hacia la Revoluixión</p>
       </div>
     </section>
@@ -2569,7 +2737,7 @@
 
     if (!prefersReducedMotion) {
       // Hero content - dramatic entrance
-      const heroTl = gsap.timeline({ delay: 0.3 });
+      const heroTl = gsap.timeline({ delay: 3.6 });
       heroTl
         .from('.hero-chip', {
           y: -50,
@@ -2912,6 +3080,257 @@
         ease: 'power3.out'
       });
     }
+
+    // ============================================
+    // 0. LOADER ANIMATION
+    // ============================================
+    document.body.style.overflow = 'hidden';
+    const loaderTl = gsap.timeline({
+      onComplete() {
+        document.getElementById('loader').style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+    loaderTl
+      .to('.loader-chip',     { opacity: 1, y: 0,     duration: 0.55, ease: 'power3.out' })
+      .to('.loader-title',    { opacity: 1, y: 0,     duration: 0.75, ease: 'power3.out' }, '-=0.2')
+      .to('.loader-bar-fill', { width: '100%',         duration: 1.1,  ease: 'power2.inOut' }, '-=0.1')
+      .to('.loader-pct', {
+        innerText: 100, snap: { innerText: 1 }, duration: 1.1, ease: 'power2.inOut',
+        onUpdate() { document.querySelector('.loader-pct').textContent = Math.round(this.targets()[0].innerText) + '%'; }
+      }, '<')
+      .to('#loader', { opacity: 0, duration: 0.55, ease: 'power2.in', delay: 0.35 });
+
+    // ============================================
+    // 1. CUSTOM CURSOR
+    // ============================================
+    const cursorDot  = document.getElementById('cursor-dot');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let ringX  = mouseX, ringY = mouseY;
+
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      cursorDot.style.left = mouseX + 'px';
+      cursorDot.style.top  = mouseY + 'px';
+    });
+
+    (function animRing() {
+      ringX += (mouseX - ringX) * 0.1;
+      ringY += (mouseY - ringY) * 0.1;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top  = ringY + 'px';
+      requestAnimationFrame(animRing);
+    })();
+
+    document.querySelectorAll('a, button, .glass-card, .cta-btn, .nav-links a').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursorDot.classList.add('hovered'); cursorRing.classList.add('hovered'); });
+      el.addEventListener('mouseleave', () => { cursorDot.classList.remove('hovered'); cursorRing.classList.remove('hovered'); });
+    });
+
+    // ============================================
+    // 2. SCROLL PROGRESS BAR
+    // ============================================
+    const progressBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+      progressBar.style.width = pct + '%';
+    }, { passive: true });
+
+    // ============================================
+    // 3. WORD REVEAL — Hero title (futuristic GSAP)
+    // ============================================
+    (function() {
+      const el = document.querySelector('.hero-title');
+      if (!el) return;
+      // Wrap text nodes into word spans while preserving gradient-text child
+      function wrapWords(node) {
+        if (node.nodeType === 3) {
+          const parts = node.textContent.split(/(\s+)/);
+          const frag = document.createDocumentFragment();
+          parts.forEach(p => {
+            if (!p.trim()) { frag.appendChild(document.createTextNode(p)); return; }
+            const outer = document.createElement('span');
+            outer.className = 'hero-word';
+            const inner = document.createElement('span');
+            inner.className = 'hero-word-inner';
+            inner.textContent = p;
+            outer.appendChild(inner);
+            frag.appendChild(outer);
+          });
+          node.parentNode.replaceChild(frag, node);
+        } else if (node.nodeType === 1 && !node.classList.contains('gradient-text')) {
+          [...node.childNodes].forEach(wrapWords);
+        }
+      }
+      [...el.childNodes].forEach(wrapWords);
+
+      const words = el.querySelectorAll('.hero-word-inner');
+      gsap.set(words, { yPercent: 115 });
+
+      gsap.to(words, {
+        yPercent: 0,
+        duration: 0.9,
+        stagger: 0.07,
+        ease: 'power4.out',
+        delay: 3.7,
+        onComplete() {
+          gsap.fromTo(el,
+            { filter: 'drop-shadow(0 0 0px rgba(52,211,153,0))' },
+            { filter: 'drop-shadow(0 0 18px rgba(52,211,153,0.35))', duration: 0.5, yoyo: true, repeat: 1, ease: 'power2.inOut',
+              onComplete() { el.style.filter = ''; }
+            }
+          );
+        }
+      });
+
+      // Gradient-text span fades in separately
+      const grad = el.querySelector('.gradient-text');
+      if (grad) gsap.from(grad, { opacity: 0, scale: 0.88, duration: 0.7, delay: 4.3, ease: 'power3.out' });
+    })();
+
+    // ============================================
+    // TRAIL PARTICLES
+    // ============================================
+    (function() {
+      const tc = document.getElementById('trail-canvas');
+      const ctx = tc.getContext('2d');
+      tc.width = window.innerWidth; tc.height = window.innerHeight;
+      window.addEventListener('resize', () => { tc.width = window.innerWidth; tc.height = window.innerHeight; });
+      const COLORS = ['#34d399','#60a5fa','#a78bfa','#fbbf24','#f87171'];
+      const parts = [];
+      document.addEventListener('mousemove', e => {
+        for (let i = 0; i < 3; i++) {
+          parts.push({
+            x: e.clientX + (Math.random()-.5)*8, y: e.clientY + (Math.random()-.5)*8,
+            vx: (Math.random()-.5)*1.2, vy: (Math.random()-.5)*1.2 - 0.4,
+            life: 1, decay: Math.random()*.025+.022,
+            size: Math.random()*2.5+.8,
+            color: COLORS[Math.floor(Math.random()*COLORS.length)]
+          });
+        }
+      });
+      (function loop() {
+        ctx.clearRect(0,0,tc.width,tc.height);
+        for (let i = parts.length-1; i >= 0; i--) {
+          const p = parts[i];
+          p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+          if (p.life <= 0) { parts.splice(i,1); continue; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life * 0.55;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+    // ============================================
+    // AMBIENT GLOW
+    // ============================================
+    (function() {
+      const glow = document.getElementById('ambient-glow');
+      let gx = window.innerWidth/2, gy = window.innerHeight/2, tx = gx, ty = gy;
+      document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+      (function loop() {
+        gx += (tx - gx) * 0.055; gy += (ty - gy) * 0.055;
+        glow.style.left = gx + 'px'; glow.style.top = gy + 'px';
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+
+    // ============================================
+    // KINETIC TYPOGRAPHY
+    // ============================================
+    gsap.utils.toArray('.kinetic-row').forEach((row, i) => {
+      gsap.fromTo(row,
+        { x: i % 2 === 0 ? '-8%' : '8%' },
+        { x: i % 2 === 0 ? '8%' : '-8%',
+          ease: 'none',
+          scrollTrigger: { trigger: '.kinetic-section', start: 'top bottom', end: 'bottom top', scrub: 1.2 }
+        }
+      );
+    });
+
+    // ============================================
+    // 4. 3D TILT ON CARDS
+    // ============================================
+    document.querySelectorAll('.glass-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width  - 0.5;
+        const y = (e.clientY - r.top)  / r.height - 0.5;
+        card.style.transform = `perspective(900px) rotateX(${-y * 10}deg) rotateY(${x * 10}deg) translateY(-4px)`;
+        card.style.transition = 'transform 0.08s ease';
+        card.style.backgroundImage = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.09), transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.style.backgroundImage = '';
+        card.style.transition = 'transform 0.5s ease, background 0.5s ease';
+      });
+    });
+
+    // ============================================
+    // 5. MAGNETIC CTA BUTTON
+    // ============================================
+    const magBtn = document.querySelector('.cta-btn');
+    if (magBtn) {
+      document.addEventListener('mousemove', e => {
+        const r   = magBtn.getBoundingClientRect();
+        const cx  = r.left + r.width  / 2;
+        const cy  = r.top  + r.height / 2;
+        const dx  = e.clientX - cx;
+        const dy  = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        const R   = 130;
+        if (dist < R) {
+          const f = (R - dist) / R;
+          magBtn.style.transform  = `translate(${dx * f * 0.45}px, ${dy * f * 0.45}px)`;
+          magBtn.style.transition = 'transform 0.1s ease';
+        } else {
+          magBtn.style.transform  = '';
+          magBtn.style.transition = 'transform 0.6s ease';
+        }
+      });
+    }
+
+    // ============================================
+    // 6. IMPACT TABLE COUNTERS (columna Mejora)
+    // ============================================
+    document.querySelectorAll('.impact-table tbody tr').forEach(row => {
+      const cell = row.querySelector('td:last-child');
+      if (!cell) return;
+      const original = cell.textContent.trim();
+      const match = original.match(/\d+\.?\d*/);
+      if (!match) return;
+      const target = parseFloat(match[0]);
+      ScrollTrigger.create({
+        trigger: cell, start: 'top 88%', once: true,
+        onEnter() {
+          const obj = { v: 0 };
+          gsap.to(obj, {
+            v: target, duration: 1.4, ease: 'power2.out',
+            onUpdate() { cell.textContent = original.replace(match[0], obj.v.toFixed(match[0].includes('.') ? 1 : 0)); },
+            onComplete() { cell.textContent = original; }
+          });
+        }
+      });
+    });
+
+    // ============================================
+    // 7. PARALLAX ON SECTION BACKGROUNDS
+    // ============================================
+    gsap.utils.toArray('section:not(#hero)').forEach(sec => {
+      gsap.fromTo(sec, { backgroundPositionY: '0%' }, {
+        backgroundPositionY: '25%',
+        ease: 'none',
+        scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: 1.5 }
+      });
+    });
 
     // ============================================
     // SMOOTH SCROLL FOR NAV LINKS
