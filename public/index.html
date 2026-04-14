@@ -53,6 +53,7 @@
       color: var(--text-primary);
       line-height: 1.6;
       overflow-x: hidden;
+      overscroll-behavior: none;
     }
 
     /* Apple Liquid Glass global background gradients */
@@ -2146,7 +2147,7 @@
 
         const x = radius * Math.sin(phi) * Math.cos(theta);
         const y = radius * Math.sin(phi) * Math.sin(theta);
-        const z = radius * Math.cos(phi) - 100;
+        const z = Math.min(radius * Math.cos(phi) - 100, 300);
 
         positions[i * 3] = x;
         positions[i * 3 + 1] = y;
@@ -2175,13 +2176,30 @@
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+      // Circle texture so particles render as circles, not squares
+      const circleCanvas = document.createElement('canvas');
+      circleCanvas.width = 32;
+      circleCanvas.height = 32;
+      const circleCtx = circleCanvas.getContext('2d');
+      const grad = circleCtx.createRadialGradient(16, 16, 0, 16, 16, 14);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.6, 'rgba(255,255,255,0.8)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      circleCtx.fillStyle = grad;
+      circleCtx.beginPath();
+      circleCtx.arc(16, 16, 14, 0, Math.PI * 2);
+      circleCtx.fill();
+      const circleTexture = new THREE.CanvasTexture(circleCanvas);
+
       const material = new THREE.PointsMaterial({
         size: isMobile ? 2.5 : 3,
         vertexColors: true,
         transparent: true,
         opacity: 0.85,
         blending: THREE.AdditiveBlending,
-        sizeAttenuation: true
+        sizeAttenuation: true,
+        map: circleTexture,
+        alphaTest: 0.05
       });
 
       const points = new THREE.Points(geometry, material);
@@ -2415,6 +2433,12 @@
           currentX += (targetX - currentX) * dynamicReturnForce;
           currentY += (targetY - currentY) * dynamicReturnForce;
           currentZ += (targetZ - currentZ) * dynamicReturnForce;
+
+          // Never let particles get too close to camera (camera at z=600)
+          if (currentZ > 320) {
+            currentZ = 320;
+            pData.velocityZ = Math.min(pData.velocityZ, 0);
+          }
 
           // Subtle orbit
           const orbitAngle = time * pData.orbitSpeed;
