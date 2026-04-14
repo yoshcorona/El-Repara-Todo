@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>REPARA TODO V1 — Plugin de Figma</title>
-  <meta name="description" content="Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño y lo repara automáticamente.">
+  <meta name="description"
+    content="Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño y lo repara automáticamente.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <style>
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     :root {
       --bg: #08080c;
-      --glass-bg: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.08);
-      --glass-border-hover: rgba(255,255,255,0.15);
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-hover: rgba(255, 255, 255, 0.15);
       --text-primary: #ffffff;
-      --text-secondary: rgba(255,255,255,0.7);
-      --text-muted: rgba(255,255,255,0.5);
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
       --mint: #34d399;
       --blue: #60a5fa;
       --coral: #f87171;
@@ -56,7 +63,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
+      background:
         radial-gradient(ellipse 100% 100% at 50% 0%, rgba(52, 211, 153, 0.03) 0%, transparent 50%),
         radial-gradient(ellipse 80% 60% at 100% 50%, rgba(96, 165, 250, 0.04) 0%, transparent 40%),
         radial-gradient(ellipse 70% 50% at 0% 80%, rgba(167, 139, 250, 0.03) 0%, transparent 40%);
@@ -66,18 +73,25 @@
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
+
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
+
       .floating-token {
         animation: none !important;
       }
     }
 
     /* Typography */
-    h1, h2, h3, h4 {
+    h1,
+    h2,
+    h3,
+    h4 {
       font-weight: 800;
       line-height: 1.2;
     }
@@ -100,13 +114,11 @@
     }
 
     .gradient-text {
-      background: linear-gradient(
-        135deg, 
-        var(--mint) 0%, 
-        var(--blue) 35%, 
-        var(--violet) 65%,
-        var(--mint) 100%
-      );
+      background: linear-gradient(135deg,
+          var(--mint) 0%,
+          var(--blue) 35%,
+          var(--violet) 65%,
+          var(--mint) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -116,25 +128,31 @@
     }
 
     @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     /* Glass Card - Apple Liquid Glass Style */
     .glass-card {
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.06) 0%,
-        rgba(255, 255, 255, 0.02) 50%,
-        rgba(255, 255, 255, 0.04) 100%
-      );
+      background: linear-gradient(135deg,
+          rgba(255, 255, 255, 0.06) 0%,
+          rgba(255, 255, 255, 0.02) 50%,
+          rgba(255, 255, 255, 0.04) 100%);
       backdrop-filter: blur(40px) saturate(150%);
       -webkit-backdrop-filter: blur(40px) saturate(150%);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 
+      box-shadow:
         0 4px 24px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
       opacity: 1 !important;
@@ -144,7 +162,7 @@
     .glass-card:hover {
       border-color: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
-      box-shadow: 
+      box-shadow:
         0 8px 40px rgba(0, 0, 0, 0.3),
         0 0 60px rgba(52, 211, 153, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -178,15 +196,35 @@
       z-index: 10;
     }
 
-    h1, h2, h3, h4, h5, h6, p, span, a, blockquote, .glass-card {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    a,
+    blockquote,
+    .glass-card {
       position: relative;
       z-index: 20;
     }
 
     /* Ensure all content is visible by default - GSAP will animate from these states */
-    article, .feature-block, .solution-step, .problem-card, .extra-card, 
-    .comparison-box, .tool-item, .roadmap-card, .impact-table, 
-    .flow-screen, .donut-container, .git-bar, .quote-text {
+    article,
+    .feature-block,
+    .solution-step,
+    .problem-card,
+    .extra-card,
+    .comparison-box,
+    .tool-item,
+    .roadmap-card,
+    .impact-table,
+    .flow-screen,
+    .donut-container,
+    .git-bar,
+    .quote-text {
       opacity: 1 !important;
       visibility: visible !important;
       transform: none !important;
@@ -270,6 +308,7 @@
         padding: 10px 16px;
         gap: 16px;
       }
+
       .nav-links {
         display: none;
       }
@@ -278,16 +317,16 @@
     /* Hero - Full screen with Apple Liquid Glass effect */
     #hero {
       min-height: 100vh;
-      height: 100vh;
+      height: auto;
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
-      padding: 0;
+      padding: 120px 32px 80px;
       overflow: visible;
-      background: 
+      background:
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(52, 211, 153, 0.12) 0%, transparent 50%),
         radial-gradient(ellipse 60% 40% at 80% 40%, rgba(96, 165, 250, 0.08) 0%, transparent 40%),
         radial-gradient(ellipse 50% 30% at 20% 60%, rgba(167, 139, 250, 0.06) 0%, transparent 35%);
@@ -337,14 +376,31 @@
     }
 
     @keyframes floatOrb1 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(6%, 3%) scale(1.05); }
-      66% { transform: translate(-3%, -5%) scale(0.97); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(6%, 3%) scale(1.05);
+      }
+
+      66% {
+        transform: translate(-3%, -5%) scale(0.97);
+      }
     }
 
     @keyframes floatOrb2 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-8%, -4%) scale(1.08); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-8%, -4%) scale(1.08);
+      }
     }
 
     /* Third decorative orb - violet */
@@ -365,9 +421,19 @@
     }
 
     @keyframes floatOrb3 {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      25% { transform: translateX(-45%) scale(1.03); }
-      75% { transform: translateX(-55%) scale(0.98); }
+
+      0%,
+      100% {
+        transform: translateX(-50%) scale(1);
+      }
+
+      25% {
+        transform: translateX(-45%) scale(1.03);
+      }
+
+      75% {
+        transform: translateX(-55%) scale(0.98);
+      }
     }
 
     /* Particle canvas - FIXED FULL PAGE */
@@ -437,41 +503,107 @@
     }
 
     @keyframes orbFloat1 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      25% { transform: translate(10%, 15%) scale(1.1); }
-      50% { transform: translate(5%, -10%) scale(0.95); }
-      75% { transform: translate(-8%, 5%) scale(1.05); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      25% {
+        transform: translate(10%, 15%) scale(1.1);
+      }
+
+      50% {
+        transform: translate(5%, -10%) scale(0.95);
+      }
+
+      75% {
+        transform: translate(-8%, 5%) scale(1.05);
+      }
     }
 
     @keyframes orbFloat2 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(-15%, -10%) scale(1.15); }
-      66% { transform: translate(10%, 8%) scale(0.9); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(-15%, -10%) scale(1.15);
+      }
+
+      66% {
+        transform: translate(10%, 8%) scale(0.9);
+      }
     }
 
     @keyframes orbFloat3 {
-      0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-      25% { transform: translate(20%, -15%) scale(1.1) rotate(5deg); }
-      50% { transform: translate(-10%, 20%) scale(0.95) rotate(-3deg); }
-      75% { transform: translate(15%, 10%) scale(1.05) rotate(2deg); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+      }
+
+      25% {
+        transform: translate(20%, -15%) scale(1.1) rotate(5deg);
+      }
+
+      50% {
+        transform: translate(-10%, 20%) scale(0.95) rotate(-3deg);
+      }
+
+      75% {
+        transform: translate(15%, 10%) scale(1.05) rotate(2deg);
+      }
     }
 
     @keyframes orbFloat4 {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-20%, -15%) scale(1.2); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-20%, -15%) scale(1.2);
+      }
     }
 
-    /* Hero content - centered over particles */
+    /* Hero content */
     .hero-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      position: relative;
       z-index: 100;
       text-align: center;
       max-width: 1000px;
       width: 100%;
-      padding: 0 32px;
+    }
+
+    .hero-image {
+      margin-top: 48px;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      z-index: 100;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .feature-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
     }
 
     @media (max-width: 768px) {
@@ -494,7 +626,7 @@
       color: var(--mint);
       margin-bottom: 36px;
       letter-spacing: 0.05em;
-      box-shadow: 
+      box-shadow:
         0 0 40px rgba(52, 211, 153, 0.2),
         0 4px 20px rgba(0, 0, 0, 0.5);
     }
@@ -508,13 +640,22 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.2); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+      }
     }
 
     .hero-title {
       margin-bottom: 32px;
-      text-shadow: 
+      text-shadow:
         0 0 60px rgba(8, 8, 12, 0.9),
         0 0 80px rgba(52, 211, 153, 0.4),
         0 0 120px rgba(96, 165, 250, 0.2),
@@ -532,7 +673,7 @@
       margin-right: auto;
       line-height: 1.75;
       text-wrap: balance;
-      text-shadow: 
+      text-shadow:
         0 0 40px rgba(8, 8, 12, 0.95),
         0 2px 20px rgba(0, 0, 0, 0.9);
     }
@@ -550,7 +691,7 @@
       text-align: center;
       padding: 20px 28px;
       background: rgba(8, 8, 12, 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-sm);
       backdrop-filter: blur(20px);
     }
@@ -561,11 +702,12 @@
       line-height: 1;
     }
 
-    .stat-value.coral { 
+    .stat-value.coral {
       color: var(--coral);
       text-shadow: 0 0 30px rgba(248, 113, 113, 0.4);
     }
-    .stat-value.mint { 
+
+    .stat-value.mint {
       color: var(--mint);
       text-shadow: 0 0 30px rgba(52, 211, 153, 0.4);
     }
@@ -599,10 +741,10 @@
 
     .floating-token {
       position: absolute;
-      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
       backdrop-filter: blur(20px) saturate(120%);
       -webkit-backdrop-filter: blur(20px) saturate(120%);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: var(--radius-sm);
       padding: 12px 18px;
       font-size: 0.8rem;
@@ -613,7 +755,7 @@
       opacity: 0;
       transform: translateZ(-500px) scale(0.3);
       animation: approach3D 14s ease-in-out infinite;
-      box-shadow: 
+      box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         0 0 60px rgba(52, 211, 153, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -623,7 +765,7 @@
       width: 16px;
       height: 16px;
       border-radius: 5px;
-      box-shadow: 
+      box-shadow:
         0 0 20px currentColor,
         0 0 40px currentColor;
     }
@@ -634,31 +776,37 @@
         opacity: 0;
         filter: blur(15px);
       }
+
       15% {
         transform: translateZ(-600px) scale(0.4) rotateX(15deg) rotateY(-8deg);
         opacity: 0.4;
         filter: blur(8px);
       }
+
       35% {
         transform: translateZ(-200px) scale(0.75) rotateX(6deg) rotateY(-3deg);
         opacity: 0.7;
         filter: blur(3px);
       }
+
       50% {
         transform: translateZ(0px) scale(1) rotateX(0deg) rotateY(0deg);
         opacity: 0.85;
         filter: blur(0px);
       }
+
       65% {
         transform: translateZ(200px) scale(1.2) rotateX(-6deg) rotateY(3deg);
         opacity: 0.6;
         filter: blur(3px);
       }
+
       85% {
         transform: translateZ(500px) scale(1.6) rotateX(-12deg) rotateY(6deg);
         opacity: 0.25;
         filter: blur(10px);
       }
+
       100% {
         transform: translateZ(800px) scale(2) rotateX(-18deg) rotateY(10deg);
         opacity: 0;
@@ -668,7 +816,7 @@
 
     /* Problem Section - Semi-transparent with gradient */
     #problema {
-      background: 
+      background:
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(248, 113, 113, 0.1) 0%, transparent 50%),
         radial-gradient(ellipse 60% 40% at 20% 80%, rgba(248, 113, 113, 0.05) 0%, transparent 40%),
         rgba(8, 8, 12, 0.9);
@@ -716,7 +864,7 @@
 
     /* Solution Section - Semi-transparent with gradient */
     #solucion {
-      background: 
+      background:
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(52, 211, 153, 0.1) 0%, transparent 50%),
         radial-gradient(ellipse 50% 30% at 80% 70%, rgba(96, 165, 250, 0.06) 0%, transparent 40%),
         rgba(8, 8, 12, 0.9);
@@ -757,11 +905,11 @@
       font-size: 0.875rem;
     }
 
-  /* Features Section */
-  #features {
-  padding: 50px 0;
-  background: rgba(8, 8, 12, 0.88);
-  }
+    /* Features Section */
+    #features {
+      padding: 50px 0;
+      background: rgba(8, 8, 12, 0.88);
+    }
 
     .feature-block {
       display: grid;
@@ -783,11 +931,12 @@
       direction: rtl;
     }
 
-    .feature-block.reverse > * {
+    .feature-block.reverse>* {
       direction: ltr;
     }
 
     @media (max-width: 768px) {
+
       .feature-block,
       .feature-block.reverse {
         grid-template-columns: 1fr;
@@ -804,10 +953,25 @@
       margin-bottom: 16px;
     }
 
-    .badge.mint { background: rgba(52, 211, 153, 0.15); color: var(--mint); }
-    .badge.blue { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
-    .badge.amber { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
-    .badge.violet { background: rgba(167, 139, 250, 0.15); color: var(--violet); }
+    .badge.mint {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--mint);
+    }
+
+    .badge.blue {
+      background: rgba(96, 165, 250, 0.15);
+      color: var(--blue);
+    }
+
+    .badge.amber {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--amber);
+    }
+
+    .badge.violet {
+      background: rgba(167, 139, 250, 0.15);
+      color: var(--violet);
+    }
 
     .feature-content h3 {
       font-size: clamp(1.5rem, 3vw, 2rem);
@@ -856,7 +1020,7 @@
     }
 
     .donut-chart .bg {
-      stroke: rgba(255,255,255,0.1);
+      stroke: rgba(255, 255, 255, 0.1);
     }
 
     .donut-chart .progress {
@@ -866,8 +1030,13 @@
       transition: stroke-dashoffset 1.5s ease;
     }
 
-    .donut-chart .progress.mint { stroke: var(--mint); }
-    .donut-chart .progress.blue { stroke: var(--blue); }
+    .donut-chart .progress.mint {
+      stroke: var(--mint);
+    }
+
+    .donut-chart .progress.blue {
+      stroke: var(--blue);
+    }
 
     .donut-value {
       position: absolute;
@@ -886,9 +1055,9 @@
     /* Media Placeholder */
     .media-placeholder {
       aspect-ratio: 16/9;
-      border: 2px dashed rgba(255,255,255,0.15);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
       border-radius: 16px;
-      background: rgba(255,255,255,0.02);
+      background: rgba(255, 255, 255, 0.02);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -968,8 +1137,13 @@
       margin-bottom: 16px;
     }
 
-    .bem-box.before h5 { color: var(--coral); }
-    .bem-box.after h5 { color: var(--mint); }
+    .bem-box.before h5 {
+      color: var(--coral);
+    }
+
+    .bem-box.after h5 {
+      color: var(--mint);
+    }
 
     .bem-item {
       display: flex;
@@ -986,18 +1160,18 @@
       font-size: 1.25rem;
     }
 
-  /* AI Feature Highlight - Enhanced liquid glass */
-  .feature-block.ai-highlight {
-  background:
-  radial-gradient(ellipse 100% 80% at 50% 30%, rgba(167, 139, 250, 0.15) 0%, transparent 60%),
-  radial-gradient(ellipse 60% 40% at 20% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 40%),
-  radial-gradient(ellipse 50% 30% at 80% 20%, rgba(52, 211, 153, 0.06) 0%, transparent 35%),
-  rgba(8, 8, 12, 0.92);
-  padding: 120px 32px;
-  margin: 0 -24px;
-  border-radius: var(--radius);
-  position: relative;
-  }
+    /* AI Feature Highlight - Enhanced liquid glass */
+    .feature-block.ai-highlight {
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 30%, rgba(167, 139, 250, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 30% at 80% 20%, rgba(52, 211, 153, 0.06) 0%, transparent 35%),
+        rgba(8, 8, 12, 0.92);
+      padding: 120px 32px;
+      margin: 0 -24px;
+      border-radius: var(--radius);
+      position: relative;
+    }
 
     .feature-block.ai-highlight::before {
       content: '';
@@ -1021,10 +1195,10 @@
       background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.3), transparent);
     }
 
-  /* Flows Section */
-  #flujos {
-    background: radial-gradient(ellipse at center top, rgba(96, 165, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-  }
+    /* Flows Section */
+    #flujos {
+      background: radial-gradient(ellipse at center top, rgba(96, 165, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
+    }
 
     .flows-visual {
       margin-top: 24px;
@@ -1049,6 +1223,9 @@
       border-radius: 4px;
       opacity: 1 !important;
       visibility: visible !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .flow-result {
@@ -1088,28 +1265,28 @@
       opacity: 1 !important;
       visibility: visible !important;
     }
-    
+
     .extra-card .icon {
       font-size: 1.5rem;
       margin-bottom: 12px;
     }
-    
+
     .extra-card h4 {
       font-weight: 700;
       margin-bottom: 8px;
       font-size: 1rem;
       color: var(--text-primary);
     }
-    
+
     .extra-card p {
       color: var(--text-secondary);
       font-size: 0.875rem;
     }
 
-  /* Impact Section */
-  #impacto {
-    background: radial-gradient(ellipse at center top, rgba(52, 211, 153, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-  }
+    /* Impact Section */
+    #impacto {
+      background: radial-gradient(ellipse at center top, rgba(52, 211, 153, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
+    }
 
     .impact-table {
       margin-top: 24px;
@@ -1147,8 +1324,13 @@
       font-size: 0.9375rem;
     }
 
-    .impact-table .coral { color: var(--coral); }
-    .impact-table .mint { color: var(--mint); }
+    .impact-table .coral {
+      color: var(--coral);
+    }
+
+    .impact-table .mint {
+      color: var(--mint);
+    }
 
     .impact-comparison {
       display: grid;
@@ -1176,8 +1358,13 @@
       margin-bottom: 20px;
     }
 
-    .comparison-box.without h4 { color: var(--coral); }
-    .comparison-box.with h4 { color: var(--mint); }
+    .comparison-box.without h4 {
+      color: var(--coral);
+    }
+
+    .comparison-box.with h4 {
+      color: var(--mint);
+    }
 
     .comparison-item {
       display: flex;
@@ -1206,10 +1393,10 @@
       line-height: 1.4;
     }
 
-  /* Tools Section */
-  #herramientas {
-    background: radial-gradient(ellipse at center top, rgba(167, 139, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-  }
+    /* Tools Section */
+    #herramientas {
+      background: radial-gradient(ellipse at center top, rgba(167, 139, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
+    }
 
     .tools-pipeline {
       display: flex;
@@ -1293,9 +1480,17 @@
       visibility: visible !important;
     }
 
-    .roadmap-card.mint { border-top-color: var(--mint); }
-    .roadmap-card.blue { border-top-color: var(--blue); }
-    .roadmap-card.amber { border-top-color: var(--amber); }
+    .roadmap-card.mint {
+      border-top-color: var(--mint);
+    }
+
+    .roadmap-card.blue {
+      border-top-color: var(--blue);
+    }
+
+    .roadmap-card.amber {
+      border-top-color: var(--amber);
+    }
 
     .roadmap-card h4 {
       font-weight: 700;
@@ -1311,11 +1506,11 @@
     }
 
     /* CTA Section */
-  #cta {
-  text-align: center;
-  padding: 120px 24px;
-    background: radial-gradient(ellipse at center, rgba(52, 211, 153, 0.1) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-  }
+    #cta {
+      text-align: center;
+      padding: 120px 24px;
+      background: radial-gradient(ellipse at center, rgba(52, 211, 153, 0.1) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
+    }
 
     #cta h2 {
       margin-bottom: 16px;
@@ -1342,12 +1537,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     /* Focus styles */
@@ -1371,6 +1566,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- Global 3D Animated Background -->
   <div class="global-bg-animation" aria-hidden="true">
@@ -1458,7 +1654,8 @@
           REPARA TODO V1
         </div>
         <h1 class="hero-title">Tu sistema de diseño se usa. Pero, <span class="gradient-text">¿cuánto?</span></h1>
-        <p class="hero-subtitle">Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño y lo repara automáticamente. 30 pantallas en segundos.</p>
+        <p class="hero-subtitle">Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño
+          y lo repara automáticamente. 30 pantallas en segundos.</p>
         <div class="hero-stats">
           <div class="stat-box">
             <div class="stat-value coral">40h</div>
@@ -1478,13 +1675,15 @@
       <div class="container">
         <span class="section-label">El Problema</span>
         <h2 class="section-title" id="problema-title">Se construyen sistemas de diseño, pero nadie sabe si se usan.</h2>
-        <p class="section-desc">Se invierten meses creando colores, tipografías y espaciados estandarizados. Pero en la práctica, los diseñadores usan valores manuales. El resultado: inconsistencia que genera retrabajo.</p>
-        
+        <p class="section-desc">Se invierten meses creando colores, tipografías y espaciados estandarizados. Pero en la
+          práctica, los diseñadores usan valores manuales. El resultado: inconsistencia que genera retrabajo.</p>
+
         <div class="problem-grid">
           <article class="glass-card problem-card">
             <div class="icon" aria-hidden="true">🎨</div>
             <h3>Valores a mano</h3>
-            <p>Un diseñador escribe un color manualmente en vez de usar el del sistema. Se ve igual, pero no está conectado.</p>
+            <p>Un diseñador escribe un color manualmente en vez de usar el del sistema. Se ve igual, pero no está
+              conectado.</p>
           </article>
           <article class="glass-card problem-card">
             <div class="icon" aria-hidden="true">📐</div>
@@ -1494,7 +1693,8 @@
           <article class="glass-card problem-card">
             <div class="icon" aria-hidden="true">⏱️</div>
             <h3>Revisión imposible</h3>
-            <p>Una pantalla tiene cientos de elementos. Revisar cada color y margen a mano toma horas. Nadie lo hace.</p>
+            <p>Una pantalla tiene cientos de elementos. Revisar cada color y margen a mano toma horas. Nadie lo hace.
+            </p>
           </article>
           <article class="glass-card problem-card">
             <div class="icon" aria-hidden="true">📊</div>
@@ -1510,7 +1710,8 @@
       <div class="container">
         <span class="section-label">La Solución</span>
         <h2 class="section-title" id="solucion-title">Escaneo inteligente + reparación en un clic.</h2>
-        <p class="section-desc">Elige una pantalla o un flujo completo. El plugin recorre cada elemento, lo cruza contra el sistema de diseño que tú elijas, y te dice exactamente qué arreglar.</p>
+        <p class="section-desc">Elige una pantalla o un flujo completo. El plugin recorre cada elemento, lo cruza contra
+          el sistema de diseño que tú elijas, y te dice exactamente qué arreglar.</p>
 
         <div class="solution-steps">
           <div class="glass-card solution-step">
@@ -1545,8 +1746,10 @@
           <div class="feature-content">
             <span class="badge mint">Medición inteligente</span>
             <h3>¿Cuánto se usa realmente el sistema?</h3>
-            <p>Revisa cada propiedad visual — colores, bordes, textos, márgenes, esquinas, sombras — y calcula qué porcentaje está conectado al sistema y cuánto fue puesto a mano.</p>
-            <p class="subtext">Tú decides contra qué sistema auditar. Elige las librerías activas y ten control total de las sugerencias.</p>
+            <p>Revisa cada propiedad visual — colores, bordes, textos, márgenes, esquinas, sombras — y calcula qué
+              porcentaje está conectado al sistema y cuánto fue puesto a mano.</p>
+            <p class="subtext">Tú decides contra qué sistema auditar. Elige las librerías activas y ten control total de
+              las sugerencias.</p>
           </div>
           <div class="feature-visual">
             <div class="donut-container">
@@ -1559,15 +1762,7 @@
               </div>
               <span class="donut-label">Adopción del sistema</span>
             </div>
-            <div class="media-placeholder" data-slot="feature-1">
-              <div class="media-placeholder-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span>Arrastra una imagen o video aquí</span>
-                <span class="media-placeholder-hint">Reemplaza este div con un &lt;img&gt; o &lt;video&gt;</span>
-              </div>
-            </div>
+            <img src="/feature-medicion.png" alt="Medición inteligente del sistema de diseño" class="feature-img" />
           </div>
         </div>
 
@@ -1576,8 +1771,10 @@
           <div class="feature-content">
             <span class="badge blue">Estructura</span>
             <h3>¿Está bien armada la pantalla?</h3>
-            <p>No basta con usar los colores correctos. Si la estructura está desordenada, desarrollo no puede implementar fielmente el diseño.</p>
-            <p class="subtext">Evalúa la organización y da una calificación de salud del layout. Identifica qué capas reestructurar.</p>
+            <p>No basta con usar los colores correctos. Si la estructura está desordenada, desarrollo no puede
+              implementar fielmente el diseño.</p>
+            <p class="subtext">Evalúa la organización y da una calificación de salud del layout. Identifica qué capas
+              reestructurar.</p>
           </div>
           <div class="feature-visual">
             <div class="donut-container">
@@ -1590,6 +1787,7 @@
               </div>
               <span class="donut-label">Salud del layout</span>
             </div>
+            <img src="/feature-estructura.png" alt="Estructura y salud del layout" class="feature-img" />
           </div>
         </div>
 
@@ -1598,7 +1796,9 @@
           <div class="feature-content">
             <span class="badge amber">Reparación inteligente</span>
             <h3>Sugiere la mejor opción y la aplica</h3>
-            <p>Para cada elemento desconectado, el plugin busca inteligentemente la opción más cercana dentro del sistema de diseño que tú seleccionaste. No solo coincidencias exactas: detecta similitudes en colores, espaciados y sombras.</p>
+            <p>Para cada elemento desconectado, el plugin busca inteligentemente la opción más cercana dentro del
+              sistema de diseño que tú seleccionaste. No solo coincidencias exactas: detecta similitudes en colores,
+              espaciados y sombras.</p>
             <p class="subtext">Aplica la corrección con un clic — uno a uno, o todos a la vez.</p>
           </div>
           <div class="feature-visual">
@@ -1607,15 +1807,7 @@
               <div class="repair-stat">50 errores → 0</div>
               <div class="repair-sub">En un solo clic</div>
             </div>
-            <div class="media-placeholder" data-slot="feature-3">
-              <div class="media-placeholder-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span>Arrastra una imagen o video aquí</span>
-                <span class="media-placeholder-hint">Reemplaza este div con un &lt;img&gt; o &lt;video&gt;</span>
-              </div>
-            </div>
+            <img src="/feature-reparacion.png" alt="Reparación inteligente del sistema de diseño" class="feature-img" />
           </div>
         </div>
 
@@ -1624,9 +1816,12 @@
           <div class="feature-content">
             <span class="badge violet">Inteligencia Artificial</span>
             <h3>Nombrar las capas ya no es tu problema</h3>
-            <p>Las capas se llaman "Frame 247", "Group 88", "Rectangle 12". Nadie las renombra. Cuando desarrollo las ve, no entiende nada.</p>
-            <p>El plugin analiza el diseño y renombra cada capa automáticamente con nombres que describen lo que realmente son.</p>
-            <p class="subtext">Dos modos: algoritmo local sin internet, o IA con Google Gemini para nombres aún más precisos.</p>
+            <p>Las capas se llaman "Frame 247", "Group 88", "Rectangle 12". Nadie las renombra. Cuando desarrollo las
+              ve, no entiende nada.</p>
+            <p>El plugin analiza el diseño y renombra cada capa automáticamente con nombres que describen lo que
+              realmente son.</p>
+            <p class="subtext">Dos modos: algoritmo local sin internet, o IA con Google Gemini para nombres aún más
+              precisos.</p>
           </div>
           <div class="feature-visual">
             <div class="bem-visual">
@@ -1644,15 +1839,7 @@
                 <div class="bem-item">✅ cta__button</div>
               </div>
             </div>
-            <div class="media-placeholder" data-slot="feature-4">
-              <div class="media-placeholder-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span>Arrastra una imagen o video aquí</span>
-                <span class="media-placeholder-hint">Reemplaza este div con un &lt;img&gt; o &lt;video&gt;</span>
-              </div>
-            </div>
+            <img src="/feature-bem.png" alt="Renombrado automático de capas con BEM" class="feature-img" />
           </div>
         </div>
       </div>
@@ -1663,8 +1850,9 @@
       <div class="container">
         <span class="section-label">No solo pantallas</span>
         <h2 class="section-title" id="flujos-title">Escanea flujos enteros de una vez.</h2>
-        <p class="section-desc">Selecciona un flujo completo — 10, 20, 30 pantallas — y el plugin las analiza y repara todas en segundos.</p>
-        
+        <p class="section-desc">Selecciona un flujo completo — 10, 20, 30 pantallas — y el plugin las analiza y repara
+          todas en segundos.</p>
+
         <div class="flows-visual">
           <div class="flow-screens" aria-hidden="true">
             <div class="flow-screen">1</div>
@@ -1695,12 +1883,13 @@
       <div class="container">
         <span class="section-label">Y además</span>
         <h2 class="section-title" id="ademas-title">Más funciones para tu flujo de trabajo.</h2>
-        
+
         <div class="extras-grid">
           <article class="glass-card extra-card">
             <div class="icon" aria-hidden="true">📚</div>
             <h4>Tú eliges la librería</h4>
-            <p>Elige contra qué sistema de diseño auditar. Librerías locales, de equipo, o ambas. Tú tienes el control.</p>
+            <p>Elige contra qué sistema de diseño auditar. Librerías locales, de equipo, o ambas. Tú tienes el control.
+            </p>
           </article>
           <article class="glass-card extra-card">
             <div class="icon" aria-hidden="true">📤</div>
@@ -1736,7 +1925,7 @@
       <div class="container">
         <span class="section-label">El Impacto</span>
         <h2 class="section-title" id="impacto-title">Antes vs después.</h2>
-        
+
         <div class="impact-table glass-card" style="padding: 0; overflow: hidden;">
           <table>
             <thead>
@@ -1811,7 +2000,8 @@
     <section id="quote" aria-label="Cita">
       <div class="container">
         <blockquote class="quote-text">
-          "Lo que no se mide, no se mejora. Ahora por primera vez podemos saber <span class="gradient-text">qué tan bien</span> usamos nuestro sistema de diseño."
+          "Lo que no se mide, no se mejora. Ahora por primera vez podemos saber <span class="gradient-text">qué tan
+            bien</span> usamos nuestro sistema de diseño."
         </blockquote>
       </div>
     </section>
@@ -1821,7 +2011,7 @@
       <div class="container">
         <span class="section-label">Cómo se construyó</span>
         <h2 class="section-title" id="herramientas-title">Las herramientas detrás del plugin.</h2>
-        
+
         <div class="tools-pipeline">
           <div class="glass-card tool-item">
             <div class="icon" aria-hidden="true">💻</div>
@@ -1853,7 +2043,7 @@
             <p>Funciones avanzadas</p>
           </div>
         </div>
-        
+
         <div class="git-bar">
           🌿 Git — Control de versiones durante todo el proceso
         </div>
@@ -1865,7 +2055,7 @@
       <div class="container">
         <span class="section-label">Roadmap</span>
         <h2 class="section-title" id="roadmap-title">Lo que viene.</h2>
-        
+
         <div class="roadmap-grid">
           <article class="glass-card roadmap-card mint">
             <h4><span aria-hidden="true">✅</span> v1.0 — Listo</h4>
@@ -1886,7 +2076,8 @@
     <!-- CTA Section -->
     <section id="cta" aria-label="Llamada a la acción">
       <div class="container">
-        <h2>De <span class="gradient-text">40 horas</span> a <span class="gradient-text">5 minutos</span>. Cada sprint.</h2>
+        <h2>De <span class="gradient-text">40 horas</span> a <span class="gradient-text">5 minutos</span>. Cada sprint.
+        </h2>
         <p class="subtitle">Listo para producción. Listo para escalar.</p>
         <p class="credit">Desarrollado por Bauinos · v1.0</p>
       </div>
@@ -1897,25 +2088,25 @@
     // ============================================
     // THREE.JS UNIVERSE EFFECT WITH SHOOTING STARS
     // ============================================
-    (function() {
+    (function () {
       const canvas = document.getElementById('particle-canvas');
       if (!canvas) return;
-      
+
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
       const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      
+
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      
+
       camera.position.z = 600;
-      
+
       const isMobile = window.innerWidth < 640;
       const particleCount = isMobile ? 1200 : 2500;
       const positions = new Float32Array(particleCount * 3);
       const colors = new Float32Array(particleCount * 3);
       const particleData = [];
-      
+
       // Color palette - universe colors
       const colorPalette = [
         { r: 0.204, g: 0.827, b: 0.6 },   // mint
@@ -1925,26 +2116,26 @@
         { r: 1, g: 1, b: 1 },             // white stars
         { r: 0.6, g: 0.9, b: 1 },         // light cyan
       ];
-      
+
       // Create particles spread across entire screen
       for (let i = 0; i < particleCount; i++) {
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
         const radius = Math.random() * 700 + 150;
-        
+
         const x = radius * Math.sin(phi) * Math.cos(theta);
         const y = radius * Math.sin(phi) * Math.sin(theta);
         const z = radius * Math.cos(phi) - 100;
-        
+
         positions[i * 3] = x;
         positions[i * 3 + 1] = y;
         positions[i * 3 + 2] = z;
-        
+
         const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
         colors[i * 3] = color.r;
         colors[i * 3 + 1] = color.g;
         colors[i * 3 + 2] = color.b;
-        
+
         particleData.push({
           originalX: x,
           originalY: y,
@@ -1958,11 +2149,11 @@
           floatAmplitude: Math.random() * 12 + 5
         });
       }
-      
+
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      
+
       const material = new THREE.PointsMaterial({
         size: isMobile ? 2.5 : 3,
         vertexColors: true,
@@ -1971,20 +2162,20 @@
         blending: THREE.AdditiveBlending,
         sizeAttenuation: true
       });
-      
+
       const points = new THREE.Points(geometry, material);
       scene.add(points);
-      
+
       // ========== SHOOTING STARS ==========
       const shootingStarCount = 8;
       const shootingStars = [];
-      
+
       for (let i = 0; i < shootingStarCount; i++) {
         const starGeometry = new THREE.BufferGeometry();
         const trailLength = 20;
         const starPositions = new Float32Array(trailLength * 3);
         const starColors = new Float32Array(trailLength * 3);
-        
+
         for (let j = 0; j < trailLength; j++) {
           starPositions[j * 3] = 0;
           starPositions[j * 3 + 1] = 0;
@@ -1994,10 +2185,10 @@
           starColors[j * 3 + 1] = alpha;
           starColors[j * 3 + 2] = alpha;
         }
-        
+
         starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
         starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-        
+
         const starMaterial = new THREE.PointsMaterial({
           size: 3,
           vertexColors: true,
@@ -2006,11 +2197,11 @@
           blending: THREE.AdditiveBlending,
           sizeAttenuation: true
         });
-        
+
         const star = new THREE.Points(starGeometry, starMaterial);
         star.visible = false;
         scene.add(star);
-        
+
         shootingStars.push({
           mesh: star,
           geometry: starGeometry,
@@ -2022,16 +2213,16 @@
           delay: Math.random() * 300 + i * 50
         });
       }
-      
+
       function spawnShootingStar(star) {
         star.active = true;
         star.life = 0;
         star.mesh.visible = true;
-        
+
         // Start from edges of screen
         const side = Math.floor(Math.random() * 4);
         const speed = Math.random() * 15 + 10;
-        
+
         if (side === 0) { // top
           star.x = (Math.random() - 0.5) * 1200;
           star.y = 500;
@@ -2053,47 +2244,47 @@
           star.vx = star.x > 0 ? -speed : speed;
           star.vy = -speed * 0.8;
         }
-        
+
         star.z = Math.random() * 200 - 100;
         star.vz = 0;
         star.trail = [];
       }
-      
+
       // Mouse state
       const mouse = { x: 0, y: 0, prevX: 0, prevY: 0 };
       let mouseSpeed = 0;
       let isMouseInHero = false;
-      
+
       document.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         isMouseInHero = e.clientY < rect.bottom && e.clientY > rect.top;
-        
+
         mouse.prevX = mouse.x;
         mouse.prevY = mouse.y;
         mouse.x = ((e.clientX / window.innerWidth) * 2 - 1);
         mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
-        
+
         const dx = mouse.x - mouse.prevX;
         const dy = mouse.y - mouse.prevY;
         mouseSpeed = Math.min(Math.sqrt(dx * dx + dy * dy) * 40, 3);
       });
-      
+
       let time = 0;
       let frameCount = 0;
-      
+
       // ========== INITIAL BIG BANG EXPLOSION ON LOAD ==========
       let initialExplosionPhase = 0; // 0 = exploding, 1 = returning, 2 = done
       let initialExplosionTime = 0;
       const explosionDuration = 80;
       const returnDuration = 150;
-      
+
       // Start all particles from center
       for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
         positions[i3] = 0;
         positions[i3 + 1] = 0;
         positions[i3 + 2] = 0;
-        
+
         // Give each particle an initial explosive velocity
         const angle = Math.random() * Math.PI * 2;
         const vertAngle = (Math.random() - 0.5) * Math.PI;
@@ -2103,119 +2294,119 @@
         particleData[i].velocityZ = Math.sin(vertAngle) * speed * 0.5;
       }
       geometry.attributes.position.needsUpdate = true;
-      
+
       function animate() {
         requestAnimationFrame(animate);
-        
+
         time += 0.01;
         frameCount++;
         initialExplosionTime++;
         const positionsArray = geometry.attributes.position.array;
-        
+
         // Handle initial explosion phases
         if (initialExplosionPhase === 0 && initialExplosionTime > explosionDuration) {
           initialExplosionPhase = 1;
         } else if (initialExplosionPhase === 1 && initialExplosionTime > explosionDuration + returnDuration) {
           initialExplosionPhase = 2;
         }
-        
+
         // Mouse influence - limited so particles never fully disappear
         const mouseX3D = mouse.x * 450;
         const mouseY3D = mouse.y * 350;
         const explosionRadius = 180 + mouseSpeed * 60;
         const explosionForce = 80 + mouseSpeed * 150;
         const maxVelocity = initialExplosionPhase === 0 ? 50 : 25;
-        
+
         for (let i = 0; i < particleCount; i++) {
           const i3 = i * 3;
           const pData = particleData[i];
-          
+
           let currentX = positionsArray[i3];
           let currentY = positionsArray[i3 + 1];
           let currentZ = positionsArray[i3 + 2];
-          
+
           // During initial explosion, just apply velocity
           if (initialExplosionPhase === 0) {
             currentX += pData.velocityX;
             currentY += pData.velocityY;
             currentZ += pData.velocityZ;
-            
+
             // Slow damping during explosion
             pData.velocityX *= 0.98;
             pData.velocityY *= 0.98;
             pData.velocityZ *= 0.98;
-            
+
             positionsArray[i3] = currentX;
             positionsArray[i3 + 1] = currentY;
             positionsArray[i3 + 2] = currentZ;
             continue;
           }
-          
+
           // During return phase and after, stronger pull to original
-          const returnProgress = initialExplosionPhase === 1 
-            ? (initialExplosionTime - explosionDuration) / returnDuration 
+          const returnProgress = initialExplosionPhase === 1
+            ? (initialExplosionTime - explosionDuration) / returnDuration
             : 1;
-          const dynamicReturnForce = initialExplosionPhase === 1 
-            ? 0.008 + returnProgress * 0.02 
+          const dynamicReturnForce = initialExplosionPhase === 1
+            ? 0.008 + returnProgress * 0.02
             : 0.012;
-          
+
           const dx = currentX - mouseX3D;
           const dy = currentY - mouseY3D;
           const dz = currentZ + 100;
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz * 0.2);
-          
+
           // Fun explosion effect - particles scatter but not too far
           if (isMouseInHero && dist < explosionRadius && initialExplosionPhase === 2) {
             const force = (explosionRadius - dist) / explosionRadius;
             const explosionPower = force * force * explosionForce;
-            
+
             const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 1.5;
             const vertAngle = (Math.random() - 0.5) * Math.PI * 0.5;
-            
+
             pData.velocityX += Math.cos(angle) * explosionPower * 0.08;
             pData.velocityY += Math.sin(angle) * explosionPower * 0.08;
             pData.velocityZ += Math.sin(vertAngle) * explosionPower * 0.05;
           }
-          
+
           // Clamp velocity so particles don't fly too far
           pData.velocityX = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityX));
           pData.velocityY = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityY));
           pData.velocityZ = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityZ));
-          
+
           currentX += pData.velocityX;
           currentY += pData.velocityY;
           currentZ += pData.velocityZ;
-          
+
           // Faster damping for quicker return
           pData.velocityX *= 0.94;
           pData.velocityY *= 0.94;
           pData.velocityZ *= 0.94;
-          
+
           // Gentle floating motion
           const floatX = Math.sin(time * pData.floatSpeed + pData.phase) * pData.floatAmplitude;
           const floatY = Math.cos(time * pData.floatSpeed * 0.7 + pData.phase) * pData.floatAmplitude;
-          
+
           // Pull back to original position
           const targetX = pData.originalX + floatX;
           const targetY = pData.originalY + floatY;
           const targetZ = pData.originalZ;
-          
+
           currentX += (targetX - currentX) * dynamicReturnForce;
           currentY += (targetY - currentY) * dynamicReturnForce;
           currentZ += (targetZ - currentZ) * dynamicReturnForce;
-          
+
           // Subtle orbit
           const orbitAngle = time * pData.orbitSpeed;
           const cos = Math.cos(orbitAngle);
           const sin = Math.sin(orbitAngle);
           const rotatedX = currentX * cos - currentZ * sin * 0.05;
           const rotatedZ = currentX * sin * 0.05 + currentZ * cos;
-          
+
           positionsArray[i3] = rotatedX;
           positionsArray[i3 + 1] = currentY;
           positionsArray[i3 + 2] = rotatedZ;
         }
-        
+
         // ========== UPDATE SHOOTING STARS ==========
         shootingStars.forEach((star, idx) => {
           if (!star.active) {
@@ -2225,16 +2416,16 @@
             }
             return;
           }
-          
+
           star.life++;
           star.x += star.vx;
           star.y += star.vy;
           star.z += star.vz;
-          
+
           // Add to trail
           star.trail.unshift({ x: star.x, y: star.y, z: star.z });
           if (star.trail.length > 20) star.trail.pop();
-          
+
           // Update geometry
           const starPositions = star.geometry.attributes.position.array;
           for (let j = 0; j < star.trail.length; j++) {
@@ -2243,7 +2434,7 @@
             starPositions[j * 3 + 2] = star.trail[j].z;
           }
           star.geometry.attributes.position.needsUpdate = true;
-          
+
           // Check if out of bounds
           if (Math.abs(star.x) > 900 || Math.abs(star.y) > 600 || star.life > 150) {
             star.active = false;
@@ -2251,15 +2442,15 @@
             star.delay = Math.random() * 200 + 100;
           }
         });
-        
+
         mouseSpeed *= 0.92;
-        
+
         geometry.attributes.position.needsUpdate = true;
         renderer.render(scene, camera);
       }
-      
+
       animate();
-      
+
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -2272,66 +2463,66 @@
     // ============================================
     gsap.registerPlugin(ScrollTrigger);
 
-  // Check for reduced motion preference
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ========== GLOBAL ORB ANIMATIONS WITH GSAP ==========
-  if (!prefersReducedMotion) {
-    // Animate background orbs with scroll
-    gsap.to('.bg-orb-1', {
-      scrollTrigger: {
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 2
-      },
-      x: '30%',
-      y: '100%',
-      scale: 1.5,
-      rotation: 45
-    });
+    // ========== GLOBAL ORB ANIMATIONS WITH GSAP ==========
+    if (!prefersReducedMotion) {
+      // Animate background orbs with scroll
+      gsap.to('.bg-orb-1', {
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 2
+        },
+        x: '30%',
+        y: '100%',
+        scale: 1.5,
+        rotation: 45
+      });
 
-    gsap.to('.bg-orb-2', {
-      scrollTrigger: {
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 3
-      },
-      x: '-40%',
-      y: '-80%',
-      scale: 0.8,
-      rotation: -30
-    });
+      gsap.to('.bg-orb-2', {
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 3
+        },
+        x: '-40%',
+        y: '-80%',
+        scale: 0.8,
+        rotation: -30
+      });
 
-    gsap.to('.bg-orb-3', {
-      scrollTrigger: {
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 2.5
-      },
-      x: '-20%',
-      y: '60%',
-      scale: 1.3,
-      rotation: 60
-    });
+      gsap.to('.bg-orb-3', {
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 2.5
+        },
+        x: '-20%',
+        y: '60%',
+        scale: 1.3,
+        rotation: 60
+      });
 
-    gsap.to('.bg-orb-4', {
-      scrollTrigger: {
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.5
-      },
-      x: '50%',
-      y: '-50%',
-      scale: 1.6,
-      rotation: -45
-    });
-  }
-  
-  if (!prefersReducedMotion) {
+      gsap.to('.bg-orb-4', {
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.5
+        },
+        x: '50%',
+        y: '-50%',
+        scale: 1.6,
+        rotation: -45
+      });
+    }
+
+    if (!prefersReducedMotion) {
       // Hero content - dramatic entrance
       const heroTl = gsap.timeline({ delay: 0.3 });
       heroTl
@@ -2485,7 +2676,7 @@
           duration: 0.8,
           ease: 'power3.out'
         });
-        
+
         gsap.from(block.querySelector('.feature-visual'), {
           scrollTrigger: {
             trigger: block,
@@ -2503,7 +2694,7 @@
         const value = parseInt(circle.dataset.value);
         const circumference = 408;
         const offset = circumference - (value / 100) * circumference;
-        
+
         gsap.to(circle, {
           scrollTrigger: {
             trigger: circle,
@@ -2662,7 +2853,7 @@
     // SMOOTH SCROLL FOR NAV LINKS
     // ============================================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
+      anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
@@ -2674,4 +2865,5 @@
     });
   </script>
 </body>
+
 </html>
