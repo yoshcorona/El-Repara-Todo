@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>REPARA TODO V1 — Plugin de Figma</title>
+  <title>EL REPARA TODO V1 — Plugin de Figma</title>
   <meta name="description"
     content="Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño y lo repara automáticamente.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,1755 +14,38 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <style>
-    *,
-    *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
-      cursor: none !important;
-    }
-
-    :root {
-      --bg: #08080c;
-      --glass-bg: rgba(255, 255, 255, 0.04);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-border-hover: rgba(255, 255, 255, 0.15);
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --text-muted: rgba(255, 255, 255, 0.5);
-      --mint: #34d399;
-      --blue: #60a5fa;
-      --coral: #f87171;
-      --violet: #a78bfa;
-      --amber: #fbbf24;
-      --radius: 20px;
-      --radius-sm: 12px;
-      --radius-xs: 8px;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: 'Manrope', sans-serif;
-      background: var(--bg);
-      color: var(--text-primary);
-      line-height: 1.6;
-      overflow-x: hidden;
-      overscroll-behavior: none;
-    }
-
-    /* Apple Liquid Glass global background gradients */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background:
-        radial-gradient(ellipse 100% 100% at 50% 0%, rgba(52, 211, 153, 0.03) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 60% at 100% 50%, rgba(96, 165, 250, 0.04) 0%, transparent 40%),
-        radial-gradient(ellipse 70% 50% at 0% 80%, rgba(167, 139, 250, 0.03) 0%, transparent 40%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-
-      .floating-token {
-        animation: none !important;
-      }
-    }
-
-    /* Typography */
-    h1,
-    h2,
-    h3,
-    h4 {
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      text-wrap: balance;
-    }
-
-    h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-    }
-
-    h3 {
-      font-size: clamp(1.25rem, 2vw, 1.5rem);
-    }
-
-    p {
-      font-weight: 400;
-    }
-
-    .gradient-text {
-      background: linear-gradient(135deg,
-          var(--mint) 0%,
-          var(--blue) 35%,
-          var(--violet) 65%,
-          var(--mint) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      background-size: 300% 300%;
-      animation: gradientShift 6s ease-in-out infinite;
-      filter: drop-shadow(0 0 30px rgba(52, 211, 153, 0.3));
-    }
-
-    @keyframes gradientShift {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
-    }
-
-    /* Glass Card - Apple Liquid Glass Style */
-    .glass-card {
-      background: linear-gradient(135deg,
-          rgba(255, 255, 255, 0.06) 0%,
-          rgba(255, 255, 255, 0.02) 50%,
-          rgba(255, 255, 255, 0.04) 100%);
-      backdrop-filter: blur(40px) saturate(150%);
-      -webkit-backdrop-filter: blur(40px) saturate(150%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 4px 24px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .glass-card:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 40px rgba(0, 0, 0, 0.3),
-        0 0 60px rgba(52, 211, 153, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Section - Always above floating tokens */
-    section {
-      padding: 100px 0;
-      position: relative;
-      z-index: 10;
-      background: rgba(8, 8, 12, 0.85);
-      backdrop-filter: blur(2px);
-    }
-
-    /* Hero section is special - transparent background */
-    #hero {
-      background: transparent !important;
-      backdrop-filter: none;
-    }
-
-    /* All main text content above tokens */
-    main {
-      position: relative;
-      z-index: 10;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    span,
-    a,
-    blockquote,
-    .glass-card {
-      position: relative;
-      z-index: 20;
-    }
-
-    /* Ensure all content is visible by default - GSAP will animate from these states */
-    article,
-    .feature-block,
-    .solution-step,
-    .problem-card,
-    .extra-card,
-    .comparison-box,
-    .tool-item,
-    .roadmap-card,
-    .impact-table,
-    .flow-screen,
-    .donut-container,
-    .git-bar,
-    .quote-text {
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
-    }
-
-    .section-label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--mint);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      margin-bottom: 20px;
-    }
-
-    #ademas .section-title,
-    #impacto .section-title,
-    #herramientas .section-title,
-    #roadmap .section-title {
-      margin-bottom: 64px;
-    }
-
-    .section-desc {
-      color: var(--text-secondary);
-      font-size: clamp(1rem, 1.5vw, 1.125rem);
-      max-width: 700px;
-      margin-bottom: 64px;
-    }
-
-    /* Navigation */
-    nav {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      background: var(--glass-bg);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border);
-      border-radius: 100px;
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .nav-logo {
-      font-weight: 800;
-      font-size: 1rem;
-      background: linear-gradient(135deg, var(--mint), var(--blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      white-space: nowrap;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 24px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover,
-    .nav-links a:focus {
-      color: var(--text-primary);
-      outline: none;
-    }
-
-    .nav-links a:focus-visible {
-      outline: 2px solid var(--mint);
-      outline-offset: 4px;
-      border-radius: 4px;
-    }
-
-    @media (max-width: 640px) {
-      nav {
-        padding: 10px 16px;
-        gap: 16px;
-      }
-
-      .nav-links {
-        display: none;
-      }
-    }
-
-    /* Hero - Full screen with Apple Liquid Glass effect */
-    #hero {
-      min-height: 100vh;
-      height: auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 120px 32px 80px;
-      overflow: visible;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(52, 211, 153, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 80% 40%, rgba(96, 165, 250, 0.08) 0%, transparent 40%),
-        radial-gradient(ellipse 50% 30% at 20% 60%, rgba(167, 139, 250, 0.06) 0%, transparent 35%);
-    }
-
-    /* Fade gradient at bottom of hero */
-    .hero-fade {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 200px;
-      background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
-      z-index: 50;
-      pointer-events: none;
-    }
-
-    /* Liquid glass orbs in background */
-    #hero::before {
-      content: '';
-      position: absolute;
-      top: 5%;
-      left: -10%;
-      width: 45vw;
-      height: 45vw;
-      max-width: 500px;
-      max-height: 500px;
-      background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
-      filter: blur(80px);
-      animation: floatOrb1 25s ease-in-out infinite;
-      z-index: 0;
-    }
-
-    #hero::after {
-      content: '';
-      position: absolute;
-      bottom: 20%;
-      right: -10%;
-      width: 40vw;
-      height: 40vw;
-      max-width: 450px;
-      max-height: 450px;
-      background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
-      filter: blur(70px);
-      animation: floatOrb2 20s ease-in-out infinite;
-      z-index: 0;
-    }
-
-    @keyframes floatOrb1 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      33% {
-        transform: translate(6%, 3%) scale(1.05);
-      }
-
-      66% {
-        transform: translate(-3%, -5%) scale(0.97);
-      }
-    }
-
-    @keyframes floatOrb2 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      50% {
-        transform: translate(-8%, -4%) scale(1.08);
-      }
-    }
-
-    /* Third decorative orb - violet */
-    .hero-orb-3 {
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 35vw;
-      height: 35vw;
-      max-width: 400px;
-      max-height: 400px;
-      background: radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 70%);
-      filter: blur(60px);
-      animation: floatOrb3 18s ease-in-out infinite;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    @keyframes floatOrb3 {
-
-      0%,
-      100% {
-        transform: translateX(-50%) scale(1);
-      }
-
-      25% {
-        transform: translateX(-45%) scale(1.03);
-      }
-
-      75% {
-        transform: translateX(-55%) scale(0.98);
-      }
-    }
-
-    /* Particle canvas - FIXED FULL PAGE */
-    #particle-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* Global 3D animated background */
-    .global-bg-animation {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    .bg-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.5;
-    }
-
-    .bg-orb-1 {
-      top: -20%;
-      left: -10%;
-      width: 60vw;
-      height: 60vw;
-      background: radial-gradient(circle, rgba(52, 211, 153, 0.15) 0%, transparent 70%);
-      animation: orbFloat1 30s ease-in-out infinite;
-    }
-
-    .bg-orb-2 {
-      bottom: -30%;
-      right: -15%;
-      width: 70vw;
-      height: 70vw;
-      background: radial-gradient(circle, rgba(96, 165, 250, 0.12) 0%, transparent 70%);
-      animation: orbFloat2 25s ease-in-out infinite;
-    }
-
-    .bg-orb-3 {
-      top: 40%;
-      left: 30%;
-      width: 50vw;
-      height: 50vw;
-      background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 70%);
-      animation: orbFloat3 35s ease-in-out infinite;
-    }
-
-    .bg-orb-4 {
-      top: 60%;
-      right: 20%;
-      width: 40vw;
-      height: 40vw;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 70%);
-      animation: orbFloat4 28s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      25% {
-        transform: translate(10%, 15%) scale(1.1);
-      }
-
-      50% {
-        transform: translate(5%, -10%) scale(0.95);
-      }
-
-      75% {
-        transform: translate(-8%, 5%) scale(1.05);
-      }
-    }
-
-    @keyframes orbFloat2 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      33% {
-        transform: translate(-15%, -10%) scale(1.15);
-      }
-
-      66% {
-        transform: translate(10%, 8%) scale(0.9);
-      }
-    }
-
-    @keyframes orbFloat3 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
-      }
-
-      25% {
-        transform: translate(20%, -15%) scale(1.1) rotate(5deg);
-      }
-
-      50% {
-        transform: translate(-10%, 20%) scale(0.95) rotate(-3deg);
-      }
-
-      75% {
-        transform: translate(15%, 10%) scale(1.05) rotate(2deg);
-      }
-    }
-
-    @keyframes orbFloat4 {
-
-      0%,
-      100% {
-        transform: translate(0, 0) scale(1);
-      }
-
-      50% {
-        transform: translate(-20%, -15%) scale(1.2);
-      }
-    }
-
-    /* Hero content */
-    .hero-content {
-      position: relative;
-      z-index: 100;
-      text-align: center;
-      max-width: 1000px;
-      width: 100%;
-    }
-
-    .hero-image {
-      margin-top: 48px;
-      max-width: 1000px;
-      width: 100%;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(52, 211, 153, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      position: relative;
-      z-index: 100;
-    }
-
-    .hero-image img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .feature-img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      .hero-content {
-        padding: 0 20px;
-      }
-    }
-
-    .hero-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(8, 8, 12, 0.7);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(52, 211, 153, 0.5);
-      border-radius: 100px;
-      padding: 12px 24px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--mint);
-      margin-bottom: 36px;
-      letter-spacing: 0.05em;
-      box-shadow:
-        0 0 40px rgba(52, 211, 153, 0.2),
-        0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-chip .dot {
-      width: 8px;
-      height: 8px;
-      background: var(--mint);
-      border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.5;
-        transform: scale(1.2);
-      }
-    }
-
-    .hero-title {
-      margin-bottom: 32px;
-      text-shadow:
-        0 0 60px rgba(8, 8, 12, 0.9),
-        0 0 80px rgba(52, 211, 153, 0.4),
-        0 0 120px rgba(96, 165, 250, 0.2),
-        0 4px 30px rgba(0, 0, 0, 0.8);
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-    }
-
-    .hero-subtitle {
-      color: var(--text-primary);
-      font-size: clamp(1.15rem, 2.2vw, 1.4rem);
-      margin-bottom: 56px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.75;
-      text-wrap: balance;
-      text-shadow:
-        0 0 40px rgba(8, 8, 12, 0.95),
-        0 2px 20px rgba(0, 0, 0, 0.9);
-    }
-
-    .hero-stats {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 32px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .stat-box {
-      text-align: center;
-      padding: 20px 28px;
-      background: rgba(8, 8, 12, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-sm);
-      backdrop-filter: blur(20px);
-    }
-
-    .stat-value {
-      font-size: clamp(2.2rem, 4.5vw, 3.5rem);
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .stat-value.coral {
-      color: var(--coral);
-      text-shadow: 0 0 30px rgba(248, 113, 113, 0.4);
-    }
-
-    .stat-value.mint {
-      color: var(--mint);
-      text-shadow: 0 0 30px rgba(52, 211, 153, 0.4);
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 8px;
-      font-weight: 500;
-    }
-
-    .stat-arrow {
-      font-size: 2rem;
-      color: var(--mint);
-      opacity: 0.6;
-    }
-
-    /* Floating Tokens - 3D Approach Effect - Visible across all sections */
-    .floating-tokens {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      user-select: none;
-      overflow: hidden;
-      z-index: 5;
-      perspective: 1500px;
-    }
-
-    .floating-token {
-      position: absolute;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-      backdrop-filter: blur(20px) saturate(120%);
-      -webkit-backdrop-filter: blur(20px) saturate(120%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: var(--radius-sm);
-      padding: 12px 18px;
-      font-size: 0.8rem;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      opacity: 0;
-      transform: translateZ(-500px) scale(0.3);
-      animation: approach3D 14s ease-in-out infinite;
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        0 0 60px rgba(52, 211, 153, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    .floating-token .color-square {
-      width: 16px;
-      height: 16px;
-      border-radius: 5px;
-      box-shadow:
-        0 0 20px currentColor,
-        0 0 40px currentColor;
-    }
-
-    @keyframes approach3D {
-      0% {
-        transform: translateZ(-1200px) scale(0.1) rotateX(25deg) rotateY(-15deg);
-        opacity: 0;
-        filter: blur(15px);
-      }
-
-      15% {
-        transform: translateZ(-600px) scale(0.4) rotateX(15deg) rotateY(-8deg);
-        opacity: 0.4;
-        filter: blur(8px);
-      }
-
-      35% {
-        transform: translateZ(-200px) scale(0.75) rotateX(6deg) rotateY(-3deg);
-        opacity: 0.7;
-        filter: blur(3px);
-      }
-
-      50% {
-        transform: translateZ(0px) scale(1) rotateX(0deg) rotateY(0deg);
-        opacity: 0.85;
-        filter: blur(0px);
-      }
-
-      65% {
-        transform: translateZ(200px) scale(1.2) rotateX(-6deg) rotateY(3deg);
-        opacity: 0.6;
-        filter: blur(3px);
-      }
-
-      85% {
-        transform: translateZ(500px) scale(1.6) rotateX(-12deg) rotateY(6deg);
-        opacity: 0.25;
-        filter: blur(10px);
-      }
-
-      100% {
-        transform: translateZ(800px) scale(2) rotateX(-18deg) rotateY(10deg);
-        opacity: 0;
-        filter: blur(20px);
-      }
-    }
-
-    /* Problem Section - Semi-transparent with gradient */
-    #problema {
-      background:
-        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(248, 113, 113, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(248, 113, 113, 0.05) 0%, transparent 40%),
-        rgba(8, 8, 12, 0.9);
-    }
-
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-    }
-
-    @media (max-width: 1100px) {
-      .problem-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 600px) {
-      .problem-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .problem-card {
-      padding: 24px;
-      text-align: center;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .problem-card .icon {
-      font-size: 2rem;
-      margin-bottom: 16px;
-    }
-
-    .problem-card h3 {
-      margin-bottom: 12px;
-    }
-
-    .problem-card p {
-      color: var(--text-secondary);
-      font-size: 0.9375rem;
-    }
-
-    /* Solution Section - Semi-transparent with gradient */
-    #solucion {
-      background:
-        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(52, 211, 153, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse 50% 30% at 80% 70%, rgba(96, 165, 250, 0.06) 0%, transparent 40%),
-        rgba(8, 8, 12, 0.9);
-    }
-
-    .solution-steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-    }
-
-    .solution-step {
-      padding: 24px;
-      text-align: center;
-      position: relative;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .solution-step.highlight {
-      border-color: var(--mint);
-      box-shadow: 0 0 30px rgba(52, 211, 153, 0.2);
-    }
-
-    .solution-step .icon {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-
-    .solution-step h4 {
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .solution-step p {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    /* Features Section */
-    #features {
-      background: rgba(8, 8, 12, 0.88);
-    }
-
-    .feature-block {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-      padding: 64px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .feature-block:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
-
-    .feature-content,
-    .feature-visual {
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .feature-block.reverse {
-      direction: rtl;
-    }
-
-    .feature-block.reverse>* {
-      direction: ltr;
-    }
-
-    @media (max-width: 768px) {
-
-      .feature-block,
-      .feature-block.reverse {
-        grid-template-columns: 1fr;
-        direction: ltr;
-      }
-    }
-
-    .feature-content .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
-    .badge.mint {
-      background: rgba(52, 211, 153, 0.15);
-      color: var(--mint);
-    }
-
-    .badge.blue {
-      background: rgba(96, 165, 250, 0.15);
-      color: var(--blue);
-    }
-
-    .badge.amber {
-      background: rgba(251, 191, 36, 0.15);
-      color: var(--amber);
-    }
-
-    .badge.violet {
-      background: rgba(167, 139, 250, 0.15);
-      color: var(--violet);
-    }
-
-    .feature-content h3 {
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      margin-bottom: 16px;
-    }
-
-    .feature-content p {
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
-    .feature-content .subtext {
-      color: var(--text-muted);
-      font-size: 0.9375rem;
-    }
-
-    .feature-visual {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feature-stat {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      border-radius: 100px;
-      padding: 10px 20px;
-      margin-top: 28px;
-      width: fit-content;
-    }
-
-    .feature-stat.mint {
-      background: rgba(52, 211, 153, 0.08);
-      border: 1px solid rgba(52, 211, 153, 0.25);
-    }
-
-    .feature-stat.blue {
-      background: rgba(96, 165, 250, 0.08);
-      border: 1px solid rgba(96, 165, 250, 0.25);
-    }
-
-    .feature-stat.amber {
-      background: rgba(251, 191, 36, 0.08);
-      border: 1px solid rgba(251, 191, 36, 0.25);
-    }
-
-    .feature-stat-value {
-      font-size: 1.375rem;
-      font-weight: 800;
-    }
-
-    .feature-stat-value.mint {
-      color: var(--mint);
-    }
-
-    .feature-stat-value.blue {
-      color: var(--blue);
-    }
-
-    .feature-stat-value.amber {
-      color: var(--amber);
-    }
-
-    .feature-stat-label {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    /* Donut Chart */
-    .donut-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .donut-chart {
-      position: relative;
-      width: 180px;
-      height: 180px;
-    }
-
-    .donut-chart svg {
-      transform: rotate(-90deg);
-    }
-
-    .donut-chart circle {
-      fill: none;
-      stroke-width: 12;
-    }
-
-    .donut-chart .bg {
-      stroke: rgba(255, 255, 255, 0.1);
-    }
-
-    .donut-chart .progress {
-      stroke-linecap: round;
-      stroke-dasharray: 408;
-      stroke-dashoffset: 408;
-      transition: stroke-dashoffset 1.5s ease;
-    }
-
-    .donut-chart .progress.mint {
-      stroke: var(--mint);
-    }
-
-    .donut-chart .progress.blue {
-      stroke: var(--blue);
-    }
-
-    .donut-value {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2.5rem;
-      font-weight: 800;
-    }
-
-    .donut-label {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    /* Media Placeholder */
-    .media-placeholder {
-      aspect-ratio: 16/9;
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.02);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .media-placeholder-inner {
-      text-align: center;
-      color: var(--text-muted);
-    }
-
-    .media-placeholder-inner svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 12px;
-      opacity: 0.5;
-    }
-
-    .media-placeholder-inner span {
-      display: block;
-      font-size: 0.875rem;
-    }
-
-    .media-placeholder-hint {
-      font-size: 0.75rem !important;
-      opacity: 0.6;
-      margin-top: 4px;
-    }
-
-    /* Repair Visual */
-    .repair-visual {
-      text-align: center;
-    }
-
-    .repair-visual .icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-    }
-
-    .repair-stat {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--mint);
-      margin-bottom: 8px;
-    }
-
-    .repair-sub {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-
-    /* BEM Visual */
-    .bem-visual {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .bem-box {
-      padding: 24px;
-      border-radius: var(--radius);
-    }
-
-    .bem-box.before {
-      background: rgba(248, 113, 113, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.3);
-    }
-
-    .bem-box.after {
-      background: rgba(52, 211, 153, 0.1);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-    }
-
-    .bem-box h5 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 16px;
-    }
-
-    .bem-box.before h5 {
-      color: var(--coral);
-    }
-
-    .bem-box.after h5 {
-      color: var(--mint);
-    }
-
-    .bem-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      font-family: monospace;
-      font-size: 0.875rem;
-    }
-
-    .bem-arrow {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 1.25rem;
-    }
-
-    /* AI Feature Highlight - Enhanced liquid glass */
-    .feature-block.ai-highlight {
-      background:
-        radial-gradient(ellipse 100% 80% at 50% 30%, rgba(167, 139, 250, 0.15) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 40%),
-        radial-gradient(ellipse 50% 30% at 80% 20%, rgba(52, 211, 153, 0.06) 0%, transparent 35%),
-        rgba(8, 8, 12, 0.92);
-      padding: 120px 32px;
-      margin: 0 -24px;
-      border-radius: var(--radius);
-      position: relative;
-    }
-
-    .feature-block.ai-highlight::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.3), transparent);
-    }
-
-    .feature-block.ai-highlight::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.3), transparent);
-    }
-
-    /* Flows Section */
-    #flujos {
-      background: radial-gradient(ellipse at center top, rgba(96, 165, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-    }
-
-    .flows-visual {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .flow-screens {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .flow-screen {
-      width: 40px;
-      height: 50px;
-      background: rgba(52, 211, 153, 0.2);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      border-radius: 4px;
-      opacity: 1 !important;
-      visibility: visible !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .flow-result {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(52, 211, 153, 0.1);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 100px;
-      padding: 12px 24px;
-      font-weight: 600;
-      color: var(--mint);
-    }
-
-    /* Y Ademas Section - 3 columns always, 2 on mobile */
-    #ademas .extras-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    @media (max-width: 900px) {
-      #ademas .extras-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 500px) {
-      #ademas .extras-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .extra-card {
-      padding: 24px;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .extra-card .icon {
-      font-size: 1.5rem;
-      margin-bottom: 12px;
-    }
-
-    .extra-card h4 {
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 1rem;
-      color: var(--text-primary);
-    }
-
-    .extra-card p {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    /* Impact Section */
-    #impacto {
-      background: radial-gradient(ellipse at center top, rgba(52, 211, 153, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-    }
-
-    .impact-table {
-      overflow-x: auto;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .impact-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .impact-table th,
-    .impact-table td {
-      padding: 16px 20px;
-      text-align: left;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .impact-table th {
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .impact-table td {
-      font-size: 0.9375rem;
-    }
-
-    .impact-table .coral {
-      color: var(--coral);
-    }
-
-    .impact-table .mint {
-      color: var(--mint);
-    }
-
-    .impact-comparison {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 24px;
-    }
-
-    @media (max-width: 640px) {
-      .impact-comparison {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .comparison-box {
-      padding: 32px;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .comparison-box h4 {
-      font-size: 0.875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 20px;
-    }
-
-    .comparison-box.without h4 {
-      color: var(--coral);
-    }
-
-    .comparison-box.with h4 {
-      color: var(--mint);
-    }
-
-    .comparison-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 10px 0;
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-    }
-
-    .comparison-item span:first-child {
-      flex-shrink: 0;
-    }
-
-    /* Quote Section */
-    #quote {
-      text-align: center;
-      padding: 120px 24px;
-    }
-
-    .quote-text {
-      font-size: clamp(1.5rem, 3vw, 2.25rem);
-      font-weight: 600;
-      max-width: 800px;
-      margin: 0 auto;
-      line-height: 1.4;
-    }
-
-    /* Tools Section */
-    #herramientas {
-      background: radial-gradient(ellipse at center top, rgba(167, 139, 250, 0.08) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-    }
-
-    .tools-pipeline {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .tool-item {
-      padding: 20px 24px;
-      text-align: center;
-      min-width: 120px;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .tool-item .icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
-
-    .tool-item h5 {
-      font-weight: 600;
-      font-size: 0.875rem;
-      margin-bottom: 4px;
-    }
-
-    .tool-item p {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-    }
-
-    .tool-arrow {
-      color: var(--text-muted);
-      font-size: 1.5rem;
-    }
-
-    @media (max-width: 640px) {
-      .tool-arrow {
-        transform: rotate(90deg);
-      }
-    }
-
-    .git-bar {
-      margin-top: 32px;
-      padding: 16px 24px;
-      background: linear-gradient(90deg, rgba(52, 211, 153, 0.1), rgba(96, 165, 250, 0.1));
-      border: 1px solid rgba(52, 211, 153, 0.2);
-      border-radius: 100px;
-      text-align: center;
-      font-size: 0.875rem;
-      color: var(--mint);
-    }
-
-    /* Roadmap Section - Always 3 columns */
-    #roadmap .roadmap-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-
-    @media (max-width: 900px) {
-      #roadmap .roadmap-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 600px) {
-      #roadmap .roadmap-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .roadmap-card {
-      padding: 32px;
-      border-top: 3px solid transparent;
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-
-    .roadmap-card.mint {
-      border-top-color: var(--mint);
-    }
-
-    .roadmap-card.blue {
-      border-top-color: var(--blue);
-    }
-
-    .roadmap-card.amber {
-      border-top-color: var(--amber);
-    }
-
-    .roadmap-card h4 {
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .roadmap-card p {
-      color: var(--text-secondary);
-      font-size: 0.9375rem;
-    }
-
-    /* CTA Section */
-    #cta {
-      text-align: center;
-      padding: 120px 24px;
-      background: radial-gradient(ellipse at center, rgba(52, 211, 153, 0.1) 0%, transparent 50%), rgba(8, 8, 12, 0.88);
-    }
-
-    #cta h2 {
-      margin-bottom: 16px;
-    }
-
-    #cta .subtitle {
-      color: var(--text-secondary);
-      font-size: 1.25rem;
-      margin-bottom: 48px;
-    }
-
-    .credit {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Focus styles */
-    a:focus-visible,
-    button:focus-visible {
-      outline: 2px solid var(--mint);
-      outline-offset: 2px;
-    }
-
-    /* ===== LOADER ===== */
-    #loader {
-      position: fixed; inset: 0; z-index: 999999;
-      background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .loader-content { text-align: center; position: relative; z-index: 3; }
-    .loader-chip {
-      font-size: 0.7rem; letter-spacing: 0.25em; color: var(--mint);
-      text-transform: uppercase; margin-bottom: 20px; opacity: 0; transform: translateY(10px);
-    }
-    .loader-title {
-      font-size: clamp(2.8rem, 8vw, 6.5rem); font-weight: 800; letter-spacing: 0.06em;
-      background: linear-gradient(135deg, var(--mint) 0%, var(--blue) 50%, var(--violet) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      opacity: 0; transform: translateY(20px);
-    }
-    .loader-bar-wrap {
-      width: 220px; height: 1px; background: rgba(255,255,255,0.08);
-      margin: 28px auto 10px; overflow: hidden; border-radius: 2px;
-    }
-    .loader-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--mint), var(--blue)); box-shadow: 0 0 10px var(--mint); }
-    .loader-pct { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; font-family: 'SF Mono', monospace; }
-
-    /* ===== TRAIL CANVAS ===== */
-    #trail-canvas {
-      position: fixed; inset: 0; pointer-events: none; z-index: 99995;
-    }
-
-    /* ===== AMBIENT GLOW ===== */
-    #ambient-glow {
-      position: fixed; width: 700px; height: 700px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(52,211,153,0.055) 0%, rgba(96,165,250,0.025) 45%, transparent 70%);
-      pointer-events: none; z-index: 2;
-      left: 50%; top: 50%; transform: translate(-50%,-50%);
-      filter: blur(35px); will-change: left, top;
-    }
-
-
-    /* ===== KINETIC TYPOGRAPHY ===== */
-    .kinetic-section {
-      overflow: hidden; padding: 72px 0;
-      background: rgba(8,8,12,0.9);
-      border-top: 1px solid rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      position: relative; z-index: 10;
-    }
-    .kinetic-row {
-      display: flex; white-space: nowrap; overflow: hidden;
-      font-size: clamp(3.5rem, 9vw, 7.5rem); font-weight: 800;
-      letter-spacing: -0.01em; line-height: 1.05;
-      -webkit-text-stroke: 1.5px rgba(255,255,255,0.07);
-      color: transparent; padding: 4px 0;
-      will-change: transform;
-    }
-    .kinetic-row:nth-child(2) { -webkit-text-stroke-color: rgba(52,211,153,0.25); }
-    .kinetic-row:nth-child(3) { -webkit-text-stroke-color: rgba(96,165,250,0.2); }
-    .kinetic-row .k-dim { opacity: 0.35; }
-
-    /* ===== HERO WORD REVEAL ===== */
-    .hero-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
-    .hero-word-inner { display: inline-block; }
-
-    /* ===== CUSTOM CURSOR ===== */
-    #cursor-dot {
-      position: fixed; top: 0; left: 0;
-      width: 8px; height: 8px;
-      background: var(--mint);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99999;
-      transform: translate(-50%, -50%);
-      transition: width 0.2s, height 0.2s, background 0.3s, transform 0.15s;
-      box-shadow: 0 0 10px var(--mint);
-    }
-    #cursor-ring {
-      position: fixed; top: 0; left: 0;
-      width: 38px; height: 38px;
-      border: 1.5px solid rgba(52, 211, 153, 0.55);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99998;
-      transform: translate(-50%, -50%);
-      transition: width 0.25s, height 0.25s, border-color 0.25s, transform 0.1s;
-      box-shadow: 0 0 12px rgba(52,211,153,0.15);
-    }
-    #cursor-dot.hovered { width: 14px; height: 14px; background: var(--blue); box-shadow: 0 0 16px var(--blue); }
-    #cursor-ring.hovered { width: 56px; height: 56px; border-color: rgba(96,165,250,0.7); }
-
-    /* ===== SCROLL PROGRESS BAR ===== */
-    #scroll-progress {
-      position: fixed; top: 0; left: 0;
-      height: 2px; width: 0%;
-      z-index: 99997;
-      background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet));
-      box-shadow: 0 0 8px rgba(52,211,153,0.7);
-      transition: width 0.05s linear;
-    }
-
-    /* ===== NOISE / GRAIN ===== */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 99996;
-      opacity: 0.035;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      background-repeat: repeat;
-    }
-
-    /* ===== CTA BUTTON ===== */
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, var(--mint), var(--blue));
-      color: #08080c;
-      font-weight: 800;
-      font-size: 1.0625rem;
-      padding: 18px 48px;
-      border-radius: 100px;
-      text-decoration: none;
-      margin-top: 40px;
-      box-shadow: 0 0 40px rgba(52,211,153,0.35), 0 8px 32px rgba(0,0,0,0.3);
-      transition: box-shadow 0.3s, transform 0.3s;
-      position: relative;
-      will-change: transform;
-    }
-    .cta-btn:hover {
-      box-shadow: 0 0 70px rgba(52,211,153,0.55), 0 12px 40px rgba(0,0,0,0.4);
-    }
-
-    /* ===== TILT: remove CSS hover transform so JS can control it ===== */
-    .glass-card:hover {
-      transform: none;
-    }
-
-    /* Screen reader only */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+  <!-- Chromatic Aberration SVG Filter -->
+  <svg id="chroma-svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <filter id="chroma" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+        <feColorMatrix type="matrix" in="SourceGraphic"
+          values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
+        <feOffset in="r" dx="0" dy="0" id="chroma-r" result="rOff"/>
+        <feColorMatrix type="matrix" in="SourceGraphic"
+          values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
+        <feColorMatrix type="matrix" in="SourceGraphic"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
+        <feOffset in="b" dx="0" dy="0" id="chroma-b" result="bOff"/>
+        <feBlend in="rOff" in2="g" mode="screen" result="rg"/>
+        <feBlend in="rg" in2="bOff" mode="screen"/>
+      </filter>
+    </defs>
+  </svg>
+
   <!-- Loader -->
   <div id="loader">
     <div class="loader-content">
       <div class="loader-chip">PLUGIN DE FIGMA</div>
-      <div class="loader-title">REPARA TODO</div>
-      <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
+      <div class="loader-title">EL REPARA TODO</div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar-fill"></div>
+      </div>
       <div class="loader-pct">0%</div>
     </div>
   </div>
@@ -1860,7 +143,7 @@
       <div class="hero-content">
         <div class="hero-chip">
           <span class="dot" aria-hidden="true"></span>
-          REPARA TODO V1
+          El REPARA TODO V1
         </div>
         <h1 class="hero-title">Tu sistema de diseño se usa. Pero, <span class="gradient-text">¿cuánto?</span></h1>
         <p class="hero-subtitle">Escanea pantallas o flujos enteros, detecta todo lo desconectado del sistema de diseño
@@ -2026,6 +309,306 @@
       </div>
     </section>
 
+    <!-- Live Demo Section -->
+    <section id="demo-section" aria-labelledby="demo-title">
+      <div class="container">
+        <div class="demo-header">
+          <h2 class="section-title" id="demo-title">Míralo funcionar en tiempo real.</h2>
+        </div>
+
+        <!-- 3-D tilt wrapper -->
+        <div class="figma-window-wrap">
+          <!-- Figma-like window -->
+          <div class="figma-window" id="figma-window">
+            <!-- Title bar -->
+            <div class="figma-titlebar">
+              <span class="figma-dot red"></span>
+              <span class="figma-dot yellow"></span>
+              <span class="figma-dot green"></span>
+              <div class="figma-titlebar-center">
+                <span class="figma-file-icon">F</span>
+                App_Dashboard_v3.fig &nbsp;—&nbsp; El Repara Todo
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="figma-body">
+              <!-- ══ LEFT: Layers panel (Figma-native dark) ══ -->
+              <div class="figma-layers" id="layers-panel">
+                <div class="figma-panel-title">Capas</div>
+                <div class="layer-item depth-0" data-layer="0" data-orig="Demo" data-bem="demo">
+                  <div class="layer-icon" style="background:#9747ff"></div>
+                  <span class="layer-name-orig">Demo</span><span class="layer-name-bem">demo</span>
+                </div>
+                <div class="layer-item depth-1" data-layer="1" data-orig="Frame 17" data-bem="demo__main-content">
+                  <div class="layer-icon" style="background:#5a5a6a"></div>
+                  <span class="layer-name-orig">Frame 17</span><span class="layer-name-bem">demo__main-content</span>
+                </div>
+                <div class="layer-item depth-2" data-layer="2" data-orig="Frame 12" data-bem="demo__page-section">
+                  <div class="layer-icon" style="background:#5a5a6a"></div>
+                  <span class="layer-name-orig">Frame 12</span><span class="layer-name-bem">demo__page-section</span>
+                </div>
+                <div class="layer-item depth-3" data-layer="3" data-orig="Frame 11" data-bem="demo__header">
+                  <div class="layer-icon" style="background:#5a5a6a; border-radius:2px"></div>
+                  <span class="layer-name-orig">Frame 11</span><span class="layer-name-bem">demo__header</span>
+                </div>
+                <div class="layer-item depth-3" data-layer="4" data-orig="Vector" data-bem="demo__header-logo">
+                  <div class="layer-icon" style="background:#5a5a6a; clip-path:polygon(50% 0%,100% 100%,0% 100%)"></div>
+                  <span class="layer-name-orig">Vector</span><span class="layer-name-bem">demo__header-logo</span>
+                </div>
+                <div class="layer-item depth-3" data-layer="5" data-orig="Frame 10" data-bem="demo__header-nav-group">
+                  <div class="layer-icon" style="background:#5a5a6a; border-radius:2px"></div>
+                  <span class="layer-name-orig">Frame 10</span><span
+                    class="layer-name-bem">demo__header-nav-group</span>
+                </div>
+                <div class="layer-item depth-2" data-layer="6" data-orig="Hero Section" data-bem="demo__hero">
+                  <div class="layer-icon" style="background:#5a5a6a"></div>
+                  <span class="layer-name-orig">Hero Section</span><span class="layer-name-bem">demo__hero</span>
+                </div>
+                <div class="layer-item depth-3" data-layer="7" data-orig="Frame 9" data-bem="demo__hero-content">
+                  <div class="layer-icon" style="background:#5a5a6a; border-radius:2px"></div>
+                  <span class="layer-name-orig">Frame 9</span><span class="layer-name-bem">demo__hero-content</span>
+                </div>
+                <div class="layer-item depth-3" data-layer="8" data-orig="Text" data-bem="demo__hero-title">
+                  <div class="layer-icon"
+                    style="background:#5a5a6a; border-radius:1px; width:10px; height:8px; font-size:7px; display:flex; align-items:center; justify-content:center; color:#888; background:#3a3a4a">
+                    T</div>
+                  <span class="layer-name-orig">Text</span><span class="layer-name-bem">demo__hero-title</span>
+                </div>
+                <div class="layer-item depth-2" data-layer="9" data-orig="Card Grid" data-bem="demo__card-grid">
+                  <div class="layer-icon" style="background:#5a5a6a"></div>
+                  <span class="layer-name-orig">Card Grid</span><span class="layer-name-bem">demo__card-grid</span>
+                </div>
+              </div>
+
+              <!-- ══ CENTER: Canvas with mock design ══ -->
+              <div class="figma-canvas" id="figma-canvas">
+                <div class="canvas-bg-grid"></div>
+                <div class="design-frame" id="design-frame">
+                  <div class="scan-line" id="scan-line">
+                    <div class="scan-glow"></div>
+                  </div>
+                  <div class="frame-header" id="ff-navbar">
+                    <div class="frame-nav-dot"></div>
+                    <div class="frame-nav-text"></div>
+                    <div class="frame-nav-icon"></div>
+                    <div class="frame-error-overlay" id="fe-navbar"></div>
+                    <div class="frame-fix-overlay" id="ff-fix-navbar"></div>
+                  </div>
+                  <div class="frame-body">
+                    <div class="frame-hero-card" id="ff-hero">
+                      <div class="frame-hero-title"></div>
+                      <div class="frame-error-overlay" id="fe-hero"></div>
+                      <div class="frame-fix-overlay" id="ff-fix-hero"></div>
+                    </div>
+                    <div class="frame-row">
+                      <div class="frame-card" id="ff-card-a">
+                        <div class="frame-card-dot" style="background:#ff5f57"></div>
+                        <div class="frame-card-line"></div>
+                        <div class="frame-error-overlay" id="fe-card-a"></div>
+                        <div class="frame-fix-overlay" id="ff-fix-card-a"></div>
+                      </div>
+                      <div class="frame-card" id="ff-card-b">
+                        <div class="frame-card-dot" style="background:#febc2e"></div>
+                        <div class="frame-card-line"></div>
+                        <div class="frame-error-overlay" id="fe-card-b"></div>
+                        <div class="frame-fix-overlay" id="ff-fix-card-b"></div>
+                      </div>
+                    </div>
+                    <div class="frame-list-item" id="ff-item1">
+                      <div class="frame-list-avatar"></div>
+                      <div class="frame-list-info">
+                        <div class="frame-list-name"></div>
+                        <div class="frame-list-sub"></div>
+                      </div>
+                      <div class="frame-error-overlay" id="fe-item1"></div>
+                      <div class="frame-fix-overlay" id="ff-fix-item1"></div>
+                    </div>
+                    <div class="frame-list-item" id="ff-item2">
+                      <div class="frame-list-avatar" style="background:#9747ff"></div>
+                      <div class="frame-list-info">
+                        <div class="frame-list-name"></div>
+                        <div class="frame-list-sub"></div>
+                      </div>
+                      <div class="frame-error-overlay" id="fe-item2"></div>
+                      <div class="frame-fix-overlay" id="ff-fix-item2"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="canvas-toolbar">
+                  <div class="toolbar-btn">↗</div>
+                  <div class="toolbar-btn active">⬜</div>
+                  <div class="toolbar-btn">✏</div>
+                  <div class="toolbar-btn">⚡</div>
+                </div>
+              </div>
+
+              <!-- ══ RIGHT: Plugin panel — WHITE, matching real screenshots ══ -->
+              <div class="figma-plugin">
+                <!-- Topbar -->
+                <div class="plugin-topbar">
+                  <div class="plugin-logo">R</div>
+                  <div class="plugin-name">El Repara Todo</div>
+                  <div class="plugin-version">v1.0</div>
+                </div>
+                <!-- Status -->
+                <div class="plugin-status">
+                  <div class="status-pulse" id="status-pulse"></div>
+                  <div class="status-text" id="status-text">Listo para escanear</div>
+                </div>
+                <!-- ── Donut charts: ADOPCIÓN + SALUD ── -->
+                <div class="plugin-donuts-area">
+                  <div class="donut-col">
+                    <div class="donut-svg-wrap">
+                      <svg class="donut-svg" viewBox="0 0 100 100">
+                        <circle class="donut-track" cx="50" cy="50" r="38" />
+                        <circle class="donut-fill amber" id="donut-adopt" cx="50" cy="50" r="38"
+                          transform="rotate(-90 50 50)" />
+                      </svg>
+                      <div class="donut-center">
+                        <span class="donut-pct-val" id="adopt-pct">0%</span>
+                      </div>
+                    </div>
+                    <div class="donut-name">ADOPCIÓN</div>
+                  </div>
+                  <div class="donut-divider"></div>
+                  <div class="donut-col">
+                    <div class="donut-svg-wrap">
+                      <svg class="donut-svg" viewBox="0 0 100 100">
+                        <circle class="donut-track" cx="50" cy="50" r="38" />
+                        <circle class="donut-fill green" id="donut-salud" cx="50" cy="50" r="38"
+                          transform="rotate(-90 50 50)" />
+                      </svg>
+                      <div class="donut-center">
+                        <span class="donut-pct-val" id="salud-pct">0%</span>
+                      </div>
+                    </div>
+                    <div class="donut-name">SALUD</div>
+                  </div>
+                </div>
+                <!-- ── Stats grid: Nodos / Props / Issues / Resueltos ── -->
+                <div class="plugin-stats">
+                  <div class="stat-cell">
+                    <span class="stat-val" id="stat-nodos">0</span>
+                    <span class="stat-lbl">Nodos</span>
+                  </div>
+                  <div class="stat-cell">
+                    <span class="stat-val" id="stat-props">0</span>
+                    <span class="stat-lbl">Propiedades</span>
+                  </div>
+                  <div class="stat-cell">
+                    <span class="stat-val red" id="stat-issues">0</span>
+                    <span class="stat-lbl">Issues</span>
+                  </div>
+                  <div class="stat-cell">
+                    <span class="stat-val ok" id="stat-resolved">0</span>
+                    <span class="stat-lbl">Resueltos</span>
+                  </div>
+                </div>
+                <!-- ── Resolver — Asignar Token ── -->
+                <div class="resolver-section">
+                  <div class="resolver-header-row" id="resolver-header">
+                    🔗 RESOLVER — ASIGNAR TOKEN
+                  </div>
+                  <!-- Token 1 -->
+                  <div class="tok-item" id="tok-0">
+                    <div class="tok-top">
+                      <div class="tok-swatch" style="background:#101322"></div>
+                      <div class="tok-main">
+                        <div class="tok-name">background-sf</div>
+                        <div class="tok-meta">
+                          <span class="tok-hex">#101322</span>
+                          <span class="tok-chip var">🔗 var</span>
+                          <span class="tok-chip exact">Exacto</span>
+                          <span class="tok-chip pct">100%</span>
+                        </div>
+                        <div class="tok-lib">□ Local</div>
+                      </div>
+                    </div>
+                    <div class="tok-asignar-wrap">
+                      <button class="tok-asignar" id="asignar-0">Asignar</button>
+                    </div>
+                  </div>
+                  <!-- Token 2 -->
+                  <div class="tok-item" id="tok-1">
+                    <div class="tok-top">
+                      <div class="tok-swatch" style="background:#0B1426"></div>
+                      <div class="tok-main">
+                        <div class="tok-name">Color/• App &amp; Others/-tertiary…</div>
+                        <div class="tok-meta">
+                          <span class="tok-hex">#0B1426</span>
+                          <span class="tok-chip var">🔗 var</span>
+                          <span class="tok-chip pct">99%</span>
+                        </div>
+                        <div class="tok-lib">□ 2.0-Design System - PrestaPro</div>
+                      </div>
+                    </div>
+                    <div class="tok-asignar-wrap">
+                      <button class="tok-asignar" id="asignar-1">Asignar</button>
+                    </div>
+                  </div>
+                  <!-- Token 3 -->
+                  <div class="tok-item" id="tok-2">
+                    <div class="tok-top">
+                      <div class="tok-swatch" style="background:#f5a623"></div>
+                      <div class="tok-main">
+                        <div class="tok-name">color-warning-default</div>
+                        <div class="tok-meta">
+                          <span class="tok-hex">#F5A623</span>
+                          <span class="tok-chip var">🔗 var</span>
+                          <span class="tok-chip exact">Exacto</span>
+                          <span class="tok-chip pct">100%</span>
+                        </div>
+                        <div class="tok-lib">□ Local</div>
+                      </div>
+                    </div>
+                    <div class="tok-asignar-wrap">
+                      <button class="tok-asignar" id="asignar-2">Asignar</button>
+                    </div>
+                  </div>
+                  <!-- Token 4 -->
+                  <div class="tok-item" id="tok-3">
+                    <div class="tok-top">
+                      <div class="tok-swatch" style="background:#9747ff"></div>
+                      <div class="tok-main">
+                        <div class="tok-name">color-brand-primary</div>
+                        <div class="tok-meta">
+                          <span class="tok-hex">#9747FF</span>
+                          <span class="tok-chip var">🔗 var</span>
+                          <span class="tok-chip pct">99%</span>
+                        </div>
+                        <div class="tok-lib">□ 2.0-Design System - PrestaPro</div>
+                      </div>
+                    </div>
+                    <div class="tok-asignar-wrap">
+                      <button class="tok-asignar" id="asignar-3">Asignar</button>
+                    </div>
+                  </div>
+                </div>
+                  <!-- ── Fix All button (aparece tras el escaneo) ── -->
+                  <div class="fix-all-wrap" id="fix-all-wrap">
+                    <button id="fix-all-btn" class="plugin-fix-all-btn">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M10 2L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Arreglar Todo
+                    </button>
+                  </div>
+              </div><!-- /figma-plugin -->
+            </div><!-- /figma-body -->
+
+          </div><!-- /figma-window -->
+
+          <!-- Toasts: sobre el figma-window-wrap (position:absolute, no cortados por overflow:hidden) -->
+          <div id="demo-toasts" class="demo-toasts" aria-live="polite"></div>
+
+        </div><!-- /figma-window-wrap -->
+
+        <!-- Replay -->
+        <button id="demo-replay-btn" class="demo-replay-btn">↺ Ver de nuevo</button>
+
+      </div>
+    </section>
+
     <!-- Flows Section -->
     <section id="flujos" aria-labelledby="flujos-title">
       <div class="container">
@@ -2179,9 +762,14 @@
 
     <!-- Kinetic Typography -->
     <div class="kinetic-section" aria-hidden="true">
-      <div class="kinetic-row"><span>ESCANEA&nbsp;&nbsp;</span><span class="k-dim">ESCANEA&nbsp;&nbsp;</span><span>ESCANEA&nbsp;&nbsp;</span><span class="k-dim">ESCANEA</span></div>
-      <div class="kinetic-row k-rev"><span>DETECTA&nbsp;&nbsp;</span><span class="k-dim">DETECTA&nbsp;&nbsp;</span><span>DETECTA&nbsp;&nbsp;</span><span class="k-dim">DETECTA</span></div>
-      <div class="kinetic-row"><span>REPARA&nbsp;&nbsp;</span><span class="k-dim">REPARA&nbsp;&nbsp;</span><span>REPARA&nbsp;&nbsp;</span><span class="k-dim">REPARA</span></div>
+      <div class="kinetic-row"><span>ESCANEA&nbsp;&nbsp;</span><span
+          class="k-dim">ESCANEA&nbsp;&nbsp;</span><span>ESCANEA&nbsp;&nbsp;</span><span class="k-dim">ESCANEA</span>
+      </div>
+      <div class="kinetic-row k-rev"><span>DETECTA&nbsp;&nbsp;</span><span
+          class="k-dim">DETECTA&nbsp;&nbsp;</span><span>DETECTA&nbsp;&nbsp;</span><span class="k-dim">DETECTA</span>
+      </div>
+      <div class="kinetic-row"><span>REPARA&nbsp;&nbsp;</span><span
+          class="k-dim">REPARA&nbsp;&nbsp;</span><span>REPARA&nbsp;&nbsp;</span><span class="k-dim">REPARA</span></div>
     </div>
 
     <!-- Quote Section -->
@@ -2227,7 +815,7 @@
           <span class="tool-arrow" aria-hidden="true">→</span>
           <div class="glass-card tool-item">
             <div class="icon" aria-hidden="true">🔌</div>
-            <h5>Figma API</h5>
+            <h5>Gemini API</h5>
             <p>Funciones avanzadas</p>
           </div>
         </div>
@@ -2267,1086 +855,20 @@
         <h2>De <span class="gradient-text">40 horas</span> a <span class="gradient-text">5 minutos</span>. Cada sprint.
         </h2>
         <p class="subtitle">Listo para producción. Listo para escalar.</p>
-        <a href="#" class="cta-btn">Conseguir el plugin →</a>
-        <p class="credit" style="margin-top:32px;">Desarrollado por Yosh Corona · Una iniciativa más de Bauinos</p>
+<p class="credit" style="margin-top:32px;">Desarrollado por Yoshirys Salas Corona · Una iniciativa más de Bauinos</p>
         <p class="gradient-text">Mirando hacia la Revoluixión</p>
       </div>
     </section>
   </main>
 
-  <script>
-    // ============================================
-    // THREE.JS UNIVERSE EFFECT WITH SHOOTING STARS
-    // ============================================
-    (function () {
-      const canvas = document.getElementById('particle-canvas');
-      if (!canvas) return;
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      camera.position.z = 600;
-
-      const isMobile = window.innerWidth < 640;
-      const particleCount = isMobile ? 1200 : 2500;
-      const positions = new Float32Array(particleCount * 3);
-      const colors = new Float32Array(particleCount * 3);
-      const particleData = [];
-
-      // Color palette - universe colors
-      const colorPalette = [
-        { r: 0.204, g: 0.827, b: 0.6 },   // mint
-        { r: 0.376, g: 0.647, b: 0.98 },  // blue
-        { r: 0.655, g: 0.545, b: 0.98 },  // violet
-        { r: 0.984, g: 0.749, b: 0.141 }, // amber
-        { r: 1, g: 1, b: 1 },             // white stars
-        { r: 0.6, g: 0.9, b: 1 },         // light cyan
-      ];
-
-      // Create particles spread across entire screen
-      for (let i = 0; i < particleCount; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        const radius = Math.random() * 700 + 150;
-
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.sin(phi) * Math.sin(theta);
-        const z = Math.min(radius * Math.cos(phi) - 100, 300);
-
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
-
-        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-        colors[i * 3] = color.r;
-        colors[i * 3 + 1] = color.g;
-        colors[i * 3 + 2] = color.b;
-
-        particleData.push({
-          originalX: x,
-          originalY: y,
-          originalZ: z,
-          velocityX: 0,
-          velocityY: 0,
-          velocityZ: 0,
-          phase: Math.random() * Math.PI * 2,
-          orbitSpeed: (Math.random() - 0.5) * 0.002,
-          floatSpeed: Math.random() * 0.015 + 0.005,
-          floatAmplitude: Math.random() * 12 + 5
-        });
-      }
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-      // Circle texture so particles render as circles, not squares
-      const circleCanvas = document.createElement('canvas');
-      circleCanvas.width = 32;
-      circleCanvas.height = 32;
-      const circleCtx = circleCanvas.getContext('2d');
-      const grad = circleCtx.createRadialGradient(16, 16, 0, 16, 16, 14);
-      grad.addColorStop(0, 'rgba(255,255,255,1)');
-      grad.addColorStop(0.6, 'rgba(255,255,255,0.8)');
-      grad.addColorStop(1, 'rgba(255,255,255,0)');
-      circleCtx.fillStyle = grad;
-      circleCtx.beginPath();
-      circleCtx.arc(16, 16, 14, 0, Math.PI * 2);
-      circleCtx.fill();
-      const circleTexture = new THREE.CanvasTexture(circleCanvas);
-
-      const material = new THREE.PointsMaterial({
-        size: isMobile ? 2.5 : 3,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.85,
-        blending: THREE.AdditiveBlending,
-        sizeAttenuation: true,
-        map: circleTexture,
-        alphaTest: 0.05
-      });
-
-      const points = new THREE.Points(geometry, material);
-      scene.add(points);
-
-      // ========== SHOOTING STARS ==========
-      const shootingStarCount = 8;
-      const shootingStars = [];
-
-      for (let i = 0; i < shootingStarCount; i++) {
-        const starGeometry = new THREE.BufferGeometry();
-        const trailLength = 20;
-        const starPositions = new Float32Array(trailLength * 3);
-        const starColors = new Float32Array(trailLength * 3);
-
-        for (let j = 0; j < trailLength; j++) {
-          starPositions[j * 3] = 0;
-          starPositions[j * 3 + 1] = 0;
-          starPositions[j * 3 + 2] = 0;
-          const alpha = 1 - (j / trailLength);
-          starColors[j * 3] = alpha;
-          starColors[j * 3 + 1] = alpha;
-          starColors[j * 3 + 2] = alpha;
-        }
-
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-
-        const starMaterial = new THREE.PointsMaterial({
-          size: 3,
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.9,
-          blending: THREE.AdditiveBlending,
-          sizeAttenuation: true
-        });
-
-        const star = new THREE.Points(starGeometry, starMaterial);
-        star.visible = false;
-        scene.add(star);
-
-        shootingStars.push({
-          mesh: star,
-          geometry: starGeometry,
-          active: false,
-          x: 0, y: 0, z: 0,
-          vx: 0, vy: 0, vz: 0,
-          trail: [],
-          life: 0,
-          delay: Math.random() * 300 + i * 50
-        });
-      }
-
-      function spawnShootingStar(star) {
-        star.active = true;
-        star.life = 0;
-        star.mesh.visible = true;
-
-        // Start from edges of screen
-        const side = Math.floor(Math.random() * 4);
-        const speed = Math.random() * 15 + 10;
-
-        if (side === 0) { // top
-          star.x = (Math.random() - 0.5) * 1200;
-          star.y = 500;
-          star.vx = (Math.random() - 0.5) * speed;
-          star.vy = -speed;
-        } else if (side === 1) { // right
-          star.x = 700;
-          star.y = (Math.random() - 0.5) * 800;
-          star.vx = -speed;
-          star.vy = (Math.random() - 0.5) * speed * 0.5;
-        } else if (side === 2) { // left
-          star.x = -700;
-          star.y = (Math.random() - 0.5) * 800;
-          star.vx = speed;
-          star.vy = (Math.random() - 0.5) * speed * 0.5;
-        } else { // diagonal from corner
-          star.x = (Math.random() > 0.5 ? 700 : -700);
-          star.y = 500;
-          star.vx = star.x > 0 ? -speed : speed;
-          star.vy = -speed * 0.8;
-        }
-
-        star.z = Math.random() * 200 - 100;
-        star.vz = 0;
-        star.trail = [];
-      }
-
-      // Mouse state
-      const mouse = { x: 0, y: 0, prevX: 0, prevY: 0 };
-      let mouseSpeed = 0;
-      let isMouseInHero = false;
-
-      document.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        isMouseInHero = e.clientY < rect.bottom && e.clientY > rect.top;
-
-        mouse.prevX = mouse.x;
-        mouse.prevY = mouse.y;
-        mouse.x = ((e.clientX / window.innerWidth) * 2 - 1);
-        mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
-
-        const dx = mouse.x - mouse.prevX;
-        const dy = mouse.y - mouse.prevY;
-        mouseSpeed = Math.min(Math.sqrt(dx * dx + dy * dy) * 40, 3);
-      });
-
-      let time = 0;
-      let frameCount = 0;
-
-      // ========== INITIAL BIG BANG EXPLOSION ON LOAD ==========
-      let initialExplosionPhase = 0; // 0 = exploding, 1 = returning, 2 = done
-      let initialExplosionTime = 0;
-      const explosionDuration = 80;
-      const returnDuration = 150;
-
-      // Start all particles from center
-      for (let i = 0; i < particleCount; i++) {
-        const i3 = i * 3;
-        positions[i3] = 0;
-        positions[i3 + 1] = 0;
-        positions[i3 + 2] = 0;
-
-        // Give each particle an initial explosive velocity
-        const angle = Math.random() * Math.PI * 2;
-        const vertAngle = (Math.random() - 0.5) * Math.PI;
-        const speed = Math.random() * 20 + 15;
-        particleData[i].velocityX = Math.cos(angle) * Math.cos(vertAngle) * speed;
-        particleData[i].velocityY = Math.sin(angle) * Math.cos(vertAngle) * speed;
-        particleData[i].velocityZ = Math.sin(vertAngle) * speed * 0.5;
-      }
-      geometry.attributes.position.needsUpdate = true;
-
-      function animate() {
-        requestAnimationFrame(animate);
-
-        time += 0.01;
-        frameCount++;
-        initialExplosionTime++;
-        const positionsArray = geometry.attributes.position.array;
-
-        // Handle initial explosion phases
-        if (initialExplosionPhase === 0 && initialExplosionTime > explosionDuration) {
-          initialExplosionPhase = 1;
-        } else if (initialExplosionPhase === 1 && initialExplosionTime > explosionDuration + returnDuration) {
-          initialExplosionPhase = 2;
-        }
-
-        // Mouse influence - limited so particles never fully disappear
-        const mouseX3D = mouse.x * 450;
-        const mouseY3D = mouse.y * 350;
-        const explosionRadius = 180 + mouseSpeed * 60;
-        const explosionForce = 80 + mouseSpeed * 150;
-        const maxVelocity = initialExplosionPhase === 0 ? 50 : 25;
-
-        for (let i = 0; i < particleCount; i++) {
-          const i3 = i * 3;
-          const pData = particleData[i];
-
-          let currentX = positionsArray[i3];
-          let currentY = positionsArray[i3 + 1];
-          let currentZ = positionsArray[i3 + 2];
-
-          // During initial explosion, just apply velocity
-          if (initialExplosionPhase === 0) {
-            currentX += pData.velocityX;
-            currentY += pData.velocityY;
-            currentZ += pData.velocityZ;
-
-            // Slow damping during explosion
-            pData.velocityX *= 0.98;
-            pData.velocityY *= 0.98;
-            pData.velocityZ *= 0.98;
-
-            positionsArray[i3] = currentX;
-            positionsArray[i3 + 1] = currentY;
-            positionsArray[i3 + 2] = currentZ;
-            continue;
-          }
-
-          // During return phase and after, stronger pull to original
-          const returnProgress = initialExplosionPhase === 1
-            ? (initialExplosionTime - explosionDuration) / returnDuration
-            : 1;
-          const dynamicReturnForce = initialExplosionPhase === 1
-            ? 0.008 + returnProgress * 0.02
-            : 0.012;
-
-          const dx = currentX - mouseX3D;
-          const dy = currentY - mouseY3D;
-          const dz = currentZ + 100;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz * 0.2);
-
-          // Fun explosion effect - particles scatter but not too far
-          if (isMouseInHero && dist < explosionRadius && initialExplosionPhase === 2) {
-            const force = (explosionRadius - dist) / explosionRadius;
-            const explosionPower = force * force * explosionForce;
-
-            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 1.5;
-            const vertAngle = (Math.random() - 0.5) * Math.PI * 0.5;
-
-            pData.velocityX += Math.cos(angle) * explosionPower * 0.08;
-            pData.velocityY += Math.sin(angle) * explosionPower * 0.08;
-            pData.velocityZ += Math.sin(vertAngle) * explosionPower * 0.05;
-          }
-
-          // Clamp velocity so particles don't fly too far
-          pData.velocityX = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityX));
-          pData.velocityY = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityY));
-          pData.velocityZ = Math.max(-maxVelocity, Math.min(maxVelocity, pData.velocityZ));
-
-          currentX += pData.velocityX;
-          currentY += pData.velocityY;
-          currentZ += pData.velocityZ;
-
-          // Faster damping for quicker return
-          pData.velocityX *= 0.94;
-          pData.velocityY *= 0.94;
-          pData.velocityZ *= 0.94;
-
-          // Gentle floating motion
-          const floatX = Math.sin(time * pData.floatSpeed + pData.phase) * pData.floatAmplitude;
-          const floatY = Math.cos(time * pData.floatSpeed * 0.7 + pData.phase) * pData.floatAmplitude;
-
-          // Pull back to original position
-          const targetX = pData.originalX + floatX;
-          const targetY = pData.originalY + floatY;
-          const targetZ = pData.originalZ;
-
-          currentX += (targetX - currentX) * dynamicReturnForce;
-          currentY += (targetY - currentY) * dynamicReturnForce;
-          currentZ += (targetZ - currentZ) * dynamicReturnForce;
-
-          // Never let particles get too close to camera (camera at z=600)
-          if (currentZ > 320) {
-            currentZ = 320;
-            pData.velocityZ = Math.min(pData.velocityZ, 0);
-          }
-
-          // Subtle orbit
-          const orbitAngle = time * pData.orbitSpeed;
-          const cos = Math.cos(orbitAngle);
-          const sin = Math.sin(orbitAngle);
-          const rotatedX = currentX * cos - currentZ * sin * 0.05;
-          const rotatedZ = currentX * sin * 0.05 + currentZ * cos;
-
-          positionsArray[i3] = rotatedX;
-          positionsArray[i3 + 1] = currentY;
-          positionsArray[i3 + 2] = rotatedZ;
-        }
-
-        // ========== UPDATE SHOOTING STARS ==========
-        shootingStars.forEach((star, idx) => {
-          if (!star.active) {
-            star.delay--;
-            if (star.delay <= 0) {
-              spawnShootingStar(star);
-            }
-            return;
-          }
-
-          star.life++;
-          star.x += star.vx;
-          star.y += star.vy;
-          star.z += star.vz;
-
-          // Add to trail
-          star.trail.unshift({ x: star.x, y: star.y, z: star.z });
-          if (star.trail.length > 20) star.trail.pop();
-
-          // Update geometry
-          const starPositions = star.geometry.attributes.position.array;
-          for (let j = 0; j < star.trail.length; j++) {
-            starPositions[j * 3] = star.trail[j].x;
-            starPositions[j * 3 + 1] = star.trail[j].y;
-            starPositions[j * 3 + 2] = star.trail[j].z;
-          }
-          star.geometry.attributes.position.needsUpdate = true;
-
-          // Check if out of bounds
-          if (Math.abs(star.x) > 900 || Math.abs(star.y) > 600 || star.life > 150) {
-            star.active = false;
-            star.mesh.visible = false;
-            star.delay = Math.random() * 200 + 100;
-          }
-        });
-
-        mouseSpeed *= 0.92;
-
-        geometry.attributes.position.needsUpdate = true;
-        renderer.render(scene, camera);
-      }
-
-      animate();
-
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    })();
-
-    // ============================================
-    // GSAP SCROLL ANIMATIONS - ENHANCED
-    // ============================================
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Check for reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // ========== GLOBAL ORB ANIMATIONS WITH GSAP ==========
-    if (!prefersReducedMotion) {
-      // Animate background orbs with scroll
-      gsap.to('.bg-orb-1', {
-        scrollTrigger: {
-          trigger: 'body',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 2
-        },
-        x: '30%',
-        y: '100%',
-        scale: 1.5,
-        rotation: 45
-      });
-
-      gsap.to('.bg-orb-2', {
-        scrollTrigger: {
-          trigger: 'body',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 3
-        },
-        x: '-40%',
-        y: '-80%',
-        scale: 0.8,
-        rotation: -30
-      });
-
-      gsap.to('.bg-orb-3', {
-        scrollTrigger: {
-          trigger: 'body',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 2.5
-        },
-        x: '-20%',
-        y: '60%',
-        scale: 1.3,
-        rotation: 60
-      });
-
-      gsap.to('.bg-orb-4', {
-        scrollTrigger: {
-          trigger: 'body',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1.5
-        },
-        x: '50%',
-        y: '-50%',
-        scale: 1.6,
-        rotation: -45
-      });
-    }
-
-    if (!prefersReducedMotion) {
-      // Hero content - dramatic entrance
-      const heroTl = gsap.timeline({ delay: 3.6 });
-      heroTl
-        .from('.hero-chip', {
-          y: -50,
-          opacity: 0,
-          scale: 0.8,
-          duration: 0.8,
-          ease: 'back.out(1.7)'
-        })
-        .from('.hero-title', {
-          y: 80,
-          opacity: 0,
-          scale: 0.9,
-          duration: 1,
-          ease: 'power4.out'
-        }, '-=0.4')
-        .from('.hero-subtitle', {
-          y: 60,
-          opacity: 0,
-          filter: 'blur(10px)',
-          duration: 0.9,
-          ease: 'power3.out'
-        }, '-=0.6')
-        .from('.hero-stats', {
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power3.out'
-        }, '-=0.4');
-
-      // Parallax effect on hero content while scrolling
-      gsap.to('.hero-content', {
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1
-        },
-        y: -150,
-        opacity: 0.3,
-        scale: 0.95,
-        filter: 'blur(5px)'
-      });
-
-      // Fade particle canvas on scroll - but keep slightly visible
-      gsap.to('#particle-canvas', {
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top top',
-          end: '150% top',
-          scrub: 1
-        },
-        opacity: 0.15,
-        filter: 'blur(3px)'
-      });
-
-      // Fade out hero orbs on scroll
-      gsap.to('.hero-orb-3', {
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top top',
-          end: '70% top',
-          scrub: 1
-        },
-        opacity: 0
-      });
-
-      // Section titles - staggered reveal with blur
-      gsap.utils.toArray('.section-label').forEach(el => {
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          },
-          x: -50,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power3.out'
-        });
-      });
-
-      gsap.utils.toArray('.section-title').forEach(el => {
-        // Split text effect simulation
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-          },
-          y: 60,
-          opacity: 0,
-          scale: 0.92,
-          filter: 'blur(8px)',
-          duration: 1,
-          ease: 'power4.out'
-        });
-      });
-
-      gsap.utils.toArray('.section-desc').forEach(el => {
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-          },
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          delay: 0.2,
-          ease: 'power3.out'
-        });
-      });
-
-      // Problem cards
-      gsap.from('.problem-card', {
-        scrollTrigger: {
-          trigger: '.problem-grid',
-          start: 'top 80%'
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out'
-      });
-
-      // Solution steps
-      gsap.from('.solution-step', {
-        scrollTrigger: {
-          trigger: '.solution-steps',
-          start: 'top 80%'
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out'
-      });
-
-      // Feature blocks
-      gsap.utils.toArray('.feature-block').forEach(block => {
-        gsap.from(block.querySelector('.feature-content'), {
-          scrollTrigger: {
-            trigger: block,
-            start: 'top 75%'
-          },
-          x: block.classList.contains('reverse') ? 40 : -40,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power3.out'
-        });
-
-        gsap.from(block.querySelector('.feature-visual'), {
-          scrollTrigger: {
-            trigger: block,
-            start: 'top 75%'
-          },
-          x: block.classList.contains('reverse') ? -40 : 40,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power3.out'
-        });
-      });
-
-      // Donut charts animation
-      gsap.utils.toArray('.donut-chart .progress').forEach(circle => {
-        const value = parseInt(circle.dataset.value);
-        const circumference = 408;
-        const offset = circumference - (value / 100) * circumference;
-
-        gsap.to(circle, {
-          scrollTrigger: {
-            trigger: circle,
-            start: 'top 80%'
-          },
-          strokeDashoffset: offset,
-          duration: 1.5,
-          ease: 'power3.out'
-        });
-      });
-
-      // Flow screens
-      gsap.from('.flow-screen', {
-        scrollTrigger: {
-          trigger: '.flow-screens',
-          start: 'top 80%'
-        },
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.03,
-        ease: 'back.out(1.7)'
-      });
-
-      // Extra cards
-      gsap.from('.extra-card', {
-        scrollTrigger: {
-          trigger: '.extras-grid',
-          start: 'top 80%'
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out'
-      });
-
-      // Impact table rows
-      gsap.from('.impact-table tbody tr', {
-        scrollTrigger: {
-          trigger: '.impact-table',
-          start: 'top 80%'
-        },
-        x: -20,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: 'power3.out'
-      });
-
-      // Comparison boxes
-      gsap.from('.comparison-box', {
-        scrollTrigger: {
-          trigger: '.impact-comparison',
-          start: 'top 80%'
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out'
-      });
-
-      // Quote
-      gsap.from('.quote-text', {
-        scrollTrigger: {
-          trigger: '#quote',
-          start: 'top 75%'
-        },
-        y: 30,
-        opacity: 0,
-        scale: 0.96,
-        duration: 1,
-        ease: 'power3.out'
-      });
-
-      // Tools pipeline
-      gsap.from('.tool-item', {
-        scrollTrigger: {
-          trigger: '.tools-pipeline',
-          start: 'top 80%'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power3.out'
-      });
-
-      gsap.from('.tool-arrow', {
-        scrollTrigger: {
-          trigger: '.tools-pipeline',
-          start: 'top 80%'
-        },
-        scale: 0,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.1,
-        delay: 0.3,
-        ease: 'back.out(1.7)'
-      });
-
-      // Git bar
-      gsap.from('.git-bar', {
-        scrollTrigger: {
-          trigger: '.git-bar',
-          start: 'top 85%'
-        },
-        scaleX: 0,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out'
-      });
-
-      // Stat counters (85%, 72%)
-      document.querySelectorAll('[data-count]').forEach(el => {
-        const target = parseInt(el.dataset.count);
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            once: true
-          },
-          val: target,
-          duration: 1.6,
-          ease: 'power2.out',
-          onUpdate() {
-            el.textContent = Math.round(obj.val) + '%';
-          }
-        });
-      });
-
-      // Roadmap cards
-      gsap.from('.roadmap-card', {
-        scrollTrigger: {
-          trigger: '.roadmap-grid',
-          start: 'top 80%'
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out'
-      });
-
-      // CTA
-      gsap.from('#cta > .container > *', {
-        scrollTrigger: {
-          trigger: '#cta',
-          start: 'top 75%'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out'
-      });
-
-      // BEM visual animation
-      gsap.from('.bem-box', {
-        scrollTrigger: {
-          trigger: '.bem-visual',
-          start: 'top 80%'
-        },
-        x: (index) => index === 0 ? -30 : 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: 'power3.out'
-      });
-    }
-
-    // ============================================
-    // 0. LOADER ANIMATION
-    // ============================================
-    document.body.style.overflow = 'hidden';
-    const loaderTl = gsap.timeline({
-      onComplete() {
-        document.getElementById('loader').style.display = 'none';
-        document.body.style.overflow = '';
-      }
-    });
-    loaderTl
-      .to('.loader-chip',     { opacity: 1, y: 0,     duration: 0.55, ease: 'power3.out' })
-      .to('.loader-title',    { opacity: 1, y: 0,     duration: 0.75, ease: 'power3.out' }, '-=0.2')
-      .to('.loader-bar-fill', { width: '100%',         duration: 1.1,  ease: 'power2.inOut' }, '-=0.1')
-      .to('.loader-pct', {
-        innerText: 100, snap: { innerText: 1 }, duration: 1.1, ease: 'power2.inOut',
-        onUpdate() { document.querySelector('.loader-pct').textContent = Math.round(this.targets()[0].innerText) + '%'; }
-      }, '<')
-      .to('#loader', { opacity: 0, duration: 0.55, ease: 'power2.in', delay: 0.35 });
-
-    // ============================================
-    // 1. CUSTOM CURSOR
-    // ============================================
-    const cursorDot  = document.getElementById('cursor-dot');
-    const cursorRing = document.getElementById('cursor-ring');
-    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let ringX  = mouseX, ringY = mouseY;
-
-    document.addEventListener('mousemove', e => {
-      mouseX = e.clientX; mouseY = e.clientY;
-      cursorDot.style.left = mouseX + 'px';
-      cursorDot.style.top  = mouseY + 'px';
-    });
-
-    (function animRing() {
-      ringX += (mouseX - ringX) * 0.1;
-      ringY += (mouseY - ringY) * 0.1;
-      cursorRing.style.left = ringX + 'px';
-      cursorRing.style.top  = ringY + 'px';
-      requestAnimationFrame(animRing);
-    })();
-
-    document.querySelectorAll('a, button, .glass-card, .cta-btn, .nav-links a').forEach(el => {
-      el.addEventListener('mouseenter', () => { cursorDot.classList.add('hovered'); cursorRing.classList.add('hovered'); });
-      el.addEventListener('mouseleave', () => { cursorDot.classList.remove('hovered'); cursorRing.classList.remove('hovered'); });
-    });
-
-    // ============================================
-    // 2. SCROLL PROGRESS BAR
-    // ============================================
-    const progressBar = document.getElementById('scroll-progress');
-    window.addEventListener('scroll', () => {
-      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
-      progressBar.style.width = pct + '%';
-    }, { passive: true });
-
-    // ============================================
-    // 3. WORD REVEAL — Hero title (futuristic GSAP)
-    // ============================================
-    (function() {
-      const el = document.querySelector('.hero-title');
-      if (!el) return;
-      // Wrap text nodes into word spans while preserving gradient-text child
-      function wrapWords(node) {
-        if (node.nodeType === 3) {
-          const parts = node.textContent.split(/(\s+)/);
-          const frag = document.createDocumentFragment();
-          parts.forEach(p => {
-            if (!p.trim()) { frag.appendChild(document.createTextNode(p)); return; }
-            const outer = document.createElement('span');
-            outer.className = 'hero-word';
-            const inner = document.createElement('span');
-            inner.className = 'hero-word-inner';
-            inner.textContent = p;
-            outer.appendChild(inner);
-            frag.appendChild(outer);
-          });
-          node.parentNode.replaceChild(frag, node);
-        } else if (node.nodeType === 1 && !node.classList.contains('gradient-text')) {
-          [...node.childNodes].forEach(wrapWords);
-        }
-      }
-      [...el.childNodes].forEach(wrapWords);
-
-      const words = el.querySelectorAll('.hero-word-inner');
-      gsap.set(words, { yPercent: 115 });
-
-      gsap.to(words, {
-        yPercent: 0,
-        duration: 0.9,
-        stagger: 0.07,
-        ease: 'power4.out',
-        delay: 3.7,
-        onComplete() {
-          gsap.fromTo(el,
-            { filter: 'drop-shadow(0 0 0px rgba(52,211,153,0))' },
-            { filter: 'drop-shadow(0 0 18px rgba(52,211,153,0.35))', duration: 0.5, yoyo: true, repeat: 1, ease: 'power2.inOut',
-              onComplete() { el.style.filter = ''; }
-            }
-          );
-        }
-      });
-
-      // Gradient-text span fades in separately
-      const grad = el.querySelector('.gradient-text');
-      if (grad) gsap.from(grad, { opacity: 0, scale: 0.88, duration: 0.7, delay: 4.3, ease: 'power3.out' });
-    })();
-
-    // ============================================
-    // TRAIL PARTICLES
-    // ============================================
-    (function() {
-      const tc = document.getElementById('trail-canvas');
-      const ctx = tc.getContext('2d');
-      tc.width = window.innerWidth; tc.height = window.innerHeight;
-      window.addEventListener('resize', () => { tc.width = window.innerWidth; tc.height = window.innerHeight; });
-      const COLORS = ['#34d399','#60a5fa','#a78bfa','#fbbf24','#f87171'];
-      const parts = [];
-      document.addEventListener('mousemove', e => {
-        for (let i = 0; i < 3; i++) {
-          parts.push({
-            x: e.clientX + (Math.random()-.5)*8, y: e.clientY + (Math.random()-.5)*8,
-            vx: (Math.random()-.5)*1.2, vy: (Math.random()-.5)*1.2 - 0.4,
-            life: 1, decay: Math.random()*.025+.022,
-            size: Math.random()*2.5+.8,
-            color: COLORS[Math.floor(Math.random()*COLORS.length)]
-          });
-        }
-      });
-      (function loop() {
-        ctx.clearRect(0,0,tc.width,tc.height);
-        for (let i = parts.length-1; i >= 0; i--) {
-          const p = parts[i];
-          p.x += p.vx; p.y += p.vy; p.life -= p.decay;
-          if (p.life <= 0) { parts.splice(i,1); continue; }
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2);
-          ctx.fillStyle = p.color;
-          ctx.globalAlpha = p.life * 0.55;
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-        requestAnimationFrame(loop);
-      })();
-    })();
-
-    // ============================================
-    // AMBIENT GLOW
-    // ============================================
-    (function() {
-      const glow = document.getElementById('ambient-glow');
-      let gx = window.innerWidth/2, gy = window.innerHeight/2, tx = gx, ty = gy;
-      document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
-      (function loop() {
-        gx += (tx - gx) * 0.055; gy += (ty - gy) * 0.055;
-        glow.style.left = gx + 'px'; glow.style.top = gy + 'px';
-        requestAnimationFrame(loop);
-      })();
-    })();
-
-
-    // ============================================
-    // KINETIC TYPOGRAPHY
-    // ============================================
-    gsap.utils.toArray('.kinetic-row').forEach((row, i) => {
-      gsap.fromTo(row,
-        { x: i % 2 === 0 ? '-8%' : '8%' },
-        { x: i % 2 === 0 ? '8%' : '-8%',
-          ease: 'none',
-          scrollTrigger: { trigger: '.kinetic-section', start: 'top bottom', end: 'bottom top', scrub: 1.2 }
-        }
-      );
-    });
-
-    // ============================================
-    // 4. 3D TILT ON CARDS
-    // ============================================
-    document.querySelectorAll('.glass-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width  - 0.5;
-        const y = (e.clientY - r.top)  / r.height - 0.5;
-        card.style.transform = `perspective(900px) rotateX(${-y * 10}deg) rotateY(${x * 10}deg) translateY(-4px)`;
-        card.style.transition = 'transform 0.08s ease';
-        card.style.backgroundImage = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.09), transparent 60%), linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`;
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-        card.style.backgroundImage = '';
-        card.style.transition = 'transform 0.5s ease, background 0.5s ease';
-      });
-    });
-
-    // ============================================
-    // 5. MAGNETIC CTA BUTTON
-    // ============================================
-    const magBtn = document.querySelector('.cta-btn');
-    if (magBtn) {
-      document.addEventListener('mousemove', e => {
-        const r   = magBtn.getBoundingClientRect();
-        const cx  = r.left + r.width  / 2;
-        const cy  = r.top  + r.height / 2;
-        const dx  = e.clientX - cx;
-        const dy  = e.clientY - cy;
-        const dist = Math.hypot(dx, dy);
-        const R   = 130;
-        if (dist < R) {
-          const f = (R - dist) / R;
-          magBtn.style.transform  = `translate(${dx * f * 0.45}px, ${dy * f * 0.45}px)`;
-          magBtn.style.transition = 'transform 0.1s ease';
-        } else {
-          magBtn.style.transform  = '';
-          magBtn.style.transition = 'transform 0.6s ease';
-        }
-      });
-    }
-
-    // ============================================
-    // 6. IMPACT TABLE COUNTERS (columna Mejora)
-    // ============================================
-    document.querySelectorAll('.impact-table tbody tr').forEach(row => {
-      const cell = row.querySelector('td:last-child');
-      if (!cell) return;
-      const original = cell.textContent.trim();
-      const match = original.match(/\d+\.?\d*/);
-      if (!match) return;
-      const target = parseFloat(match[0]);
-      ScrollTrigger.create({
-        trigger: cell, start: 'top 88%', once: true,
-        onEnter() {
-          const obj = { v: 0 };
-          gsap.to(obj, {
-            v: target, duration: 1.4, ease: 'power2.out',
-            onUpdate() { cell.textContent = original.replace(match[0], obj.v.toFixed(match[0].includes('.') ? 1 : 0)); },
-            onComplete() { cell.textContent = original; }
-          });
-        }
-      });
-    });
-
-    // ============================================
-    // 7. PARALLAX ON SECTION BACKGROUNDS
-    // ============================================
-    gsap.utils.toArray('section:not(#hero)').forEach(sec => {
-      gsap.fromTo(sec, { backgroundPositionY: '0%' }, {
-        backgroundPositionY: '25%',
-        ease: 'none',
-        scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: 1.5 }
-      });
-    });
-
-    // ============================================
-    // SMOOTH SCROLL FOR NAV LINKS
-    // ============================================
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: prefersReducedMotion ? 'auto' : 'smooth'
-          });
-        }
-      });
-    });
-  </script>
+  <!-- Cursor animado: hijo directo de body para que position:fixed sea relativo al viewport -->
+  <div id="demo-cursor" class="demo-anim-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 20 24" fill="none">
+      <path d="M1 1 L1 19 L5.5 14.5 L8.5 21.5 L11 20.5 L8 13.5 L14 13.5 Z" fill="white" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <script src="main.js"></script>
 </body>
-
 </html>
